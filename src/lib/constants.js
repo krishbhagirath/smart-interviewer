@@ -30,49 +30,19 @@ export const INTERVIEW_TYPES = [
     description: 'End-to-end development scenarios',
   },
   {
-    id: 'system-design',
-    label: 'System Design',
-    description: 'Architecture, scalability, distributed systems',
+    id: 'infrastructure',
+    label: 'Infrastructure',
+    description: 'DevOps, SRE, CI/CD, monitoring',
   },
   {
-    id: 'data-structures-algorithms',
-    label: 'Data Structures & Algorithms',
-    description: 'Coding problem-solving',
+    id: 'ai-ml',
+    label: 'AI/ML Engineering',
+    description: 'Machine learning, AI systems, model deployment',
   },
   {
-    id: 'database-design',
-    label: 'Database Design',
-    description: 'SQL, NoSQL, schema design',
-  },
-  {
-    id: 'api-design',
-    label: 'API Design',
-    description: 'REST, GraphQL, API architecture',
-  },
-  {
-    id: 'cloud-architecture',
-    label: 'Cloud Architecture',
-    description: 'AWS, Azure, GCP scenarios',
-  },
-  {
-    id: 'devops-sre',
-    label: 'DevOps & SRE',
-    description: 'CI/CD, monitoring, infrastructure',
-  },
-  {
-    id: 'mobile-development',
-    label: 'Mobile Development',
-    description: 'iOS, Android, React Native',
-  },
-  {
-    id: 'product-management',
-    label: 'Product Management',
-    description: 'Product strategy, roadmapping',
-  },
-  {
-    id: 'technical-program-management',
-    label: 'Technical Program Management',
-    description: 'Cross-team coordination, delivery',
+    id: 'cybersecurity',
+    label: 'Cybersecurity',
+    description: 'Security engineering, threat analysis, penetration testing',
   },
 ];
 

@@ -16,7 +16,6 @@ export default function HomePage() {
 
   const [formData, setFormData] = useState({
     interviewType: '',
-    role: '',
     experienceLevel: '',
   });
 
@@ -65,9 +64,7 @@ export default function HomePage() {
             />
 
             <UserInfoForm
-              role={formData.role}
               experienceLevel={formData.experienceLevel}
-              onRoleChange={(value) => updateFormData('role', value)}
               onExperienceLevelChange={(value) => updateFormData('experienceLevel', value)}
               errors={errors}
             />

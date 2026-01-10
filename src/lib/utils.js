@@ -13,10 +13,6 @@ export function validatePreInterviewForm(data) {
     errors.interviewType = 'Please select an interview type';
   }
 
-  if (!data.role || data.role.trim().length === 0) {
-    errors.role = 'Please enter your target role';
-  }
-
   if (!data.experienceLevel) {
     errors.experienceLevel = 'Please select your experience level';
   }

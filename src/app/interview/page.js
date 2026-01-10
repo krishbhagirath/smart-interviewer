@@ -35,7 +35,6 @@ export default function InterviewPage() {
 
         <div className="space-y-2 text-white/80">
           <p><strong>Interview Type:</strong> {setupData.interviewType}</p>
-          <p><strong>Target Role:</strong> {setupData.role}</p>
           <p><strong>Experience Level:</strong> {setupData.experienceLevel}</p>
         </div>
 

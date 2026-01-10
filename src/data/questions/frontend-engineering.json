@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "category": "frontend-engineering",
+    "displayName": "Frontend Engineering",
+    "description": "Questions focused on React, JavaScript, CSS, and modern frontend development",
+    "difficulty": "intermediate",
+    "estimatedDuration": "45-60 minutes",
+    "questionCount": 10,
+    "version": "1.0.0"
+  },
+  "questions": [
+    {
+      "id": "fe-001",
+      "type": "technical",
+      "difficulty": "easy",
+      "question": "Explain the difference between controlled and uncontrolled components in React.",
+      "hints": [
+        "Think about state management",
+        "Consider form handling patterns"
+      ],
+      "followUp": [
+        "When would you use each approach?",
+        "What are the performance implications?"
+      ],
+      "tags": ["react", "fundamentals", "forms"],
+      "estimatedTime": 3
+    },
+    {
+      "id": "fe-002",
+      "type": "problem-solving",
+      "difficulty": "medium",
+      "question": "How would you optimize the performance of a React application that's rendering a large list of items?",
+      "hints": [
+        "Consider virtualization",
+        "Think about memoization techniques",
+        "Look at rendering patterns"
+      ],
+      "followUp": [
+        "What metrics would you track?",
+        "How would you measure the improvement?"
+      ],
+      "tags": ["react", "performance", "optimization"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "fe-003",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "You need to build a complex form with dynamic validation, file uploads, and real-time updates. Walk me through your implementation approach.",
+      "hints": [
+        "Consider state management solutions",
+        "Think about validation libraries",
+        "Plan for error handling"
+      ],
+      "followUp": [
+        "How would you handle offline scenarios?",
+        "What about accessibility?"
+      ],
+      "tags": ["react", "forms", "architecture"],
+      "estimatedTime": 8
+    },
+    {
+      "id": "fe-004",
+      "type": "technical",
+      "difficulty": "medium",
+      "question": "Explain the concept of closures in JavaScript and provide a practical use case.",
+      "hints": [
+        "Think about scope",
+        "Consider data privacy"
+      ],
+      "followUp": [
+        "Can you explain lexical scoping?",
+        "What are potential memory leak concerns?"
+      ],
+      "tags": ["javascript", "fundamentals", "closures"],
+      "estimatedTime": 4
+    },
+    {
+      "id": "fe-005",
+      "type": "technical",
+      "difficulty": "easy",
+      "question": "What is the virtual DOM and how does it improve performance in React?",
+      "hints": [
+        "Compare to real DOM",
+        "Think about reconciliation"
+      ],
+      "followUp": [
+        "What is the reconciliation algorithm?",
+        "When might the virtual DOM be a bottleneck?"
+      ],
+      "tags": ["react", "virtual-dom", "performance"],
+      "estimatedTime": 3
+    },
+    {
+      "id": "fe-006",
+      "type": "problem-solving",
+      "difficulty": "medium",
+      "question": "How would you implement responsive images that load different sizes based on viewport width?",
+      "hints": [
+        "Consider srcset and sizes attributes",
+        "Think about picture element",
+        "Look into lazy loading"
+      ],
+      "followUp": [
+        "How would you handle retina displays?",
+        "What about WebP format support?"
+      ],
+      "tags": ["html", "responsive", "images", "performance"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "fe-007",
+      "type": "technical",
+      "difficulty": "medium",
+      "question": "Explain the difference between CSS Grid and Flexbox. When would you use one over the other?",
+      "hints": [
+        "Think about one-dimensional vs two-dimensional layouts",
+        "Consider browser support"
+      ],
+      "followUp": [
+        "Can you combine both in a layout?",
+        "What about performance differences?"
+      ],
+      "tags": ["css", "layout", "grid", "flexbox"],
+      "estimatedTime": 4
+    },
+    {
+      "id": "fe-008",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "You notice your web app is slow on mobile devices. Walk me through your debugging and optimization process.",
+      "hints": [
+        "Use profiling tools",
+        "Check network requests",
+        "Analyze render performance"
+      ],
+      "followUp": [
+        "What specific metrics would you focus on?",
+        "How would you prioritize optimizations?"
+      ],
+      "tags": ["performance", "debugging", "mobile", "optimization"],
+      "estimatedTime": 7
+    },
+    {
+      "id": "fe-009",
+      "type": "technical",
+      "difficulty": "medium",
+      "question": "What are React hooks and why were they introduced? Explain useState and useEffect.",
+      "hints": [
+        "Think about functional components",
+        "Consider component lifecycle"
+      ],
+      "followUp": [
+        "What are custom hooks?",
+        "Explain the rules of hooks"
+      ],
+      "tags": ["react", "hooks", "fundamentals"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "fe-010",
+      "type": "problem-solving",
+      "difficulty": "hard",
+      "question": "Design a caching strategy for API requests in a React application to minimize redundant network calls.",
+      "hints": [
+        "Consider cache invalidation",
+        "Think about stale data",
+        "Look at existing solutions like React Query"
+      ],
+      "followUp": [
+        "How would you handle cache expiration?",
+        "What about optimistic updates?"
+      ],
+      "tags": ["react", "caching", "api", "architecture"],
+      "estimatedTime": 8
+    }
+  ],
+  "skillsAssessed": [
+    "React fundamentals",
+    "JavaScript ES6+",
+    "Performance optimization",
+    "State management",
+    "Component architecture",
+    "CSS and styling",
+    "Browser APIs",
+    "Build tools and bundlers"
+  ]
+}

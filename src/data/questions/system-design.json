@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "category": "system-design",
+    "displayName": "System Design",
+    "description": "Questions focused on architecture, scalability, and distributed systems",
+    "difficulty": "advanced",
+    "estimatedDuration": "45-60 minutes",
+    "questionCount": 8,
+    "version": "1.0.0"
+  },
+  "questions": [
+    {
+      "id": "sd-001",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "Design a URL shortening service like bit.ly. How would you handle billions of URLs?",
+      "hints": [
+        "Consider data storage and retrieval",
+        "Think about scalability and load balancing",
+        "Plan for analytics and tracking"
+      ],
+      "followUp": [
+        "How would you handle custom URLs?",
+        "What about rate limiting?",
+        "How would you ensure high availability?"
+      ],
+      "tags": ["system-design", "scalability", "distributed-systems"],
+      "estimatedTime": 10
+    },
+    {
+      "id": "sd-002",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "Design a real-time chat application like Slack. Focus on the messaging infrastructure.",
+      "hints": [
+        "Consider WebSocket vs polling",
+        "Think about message ordering and delivery",
+        "Plan for offline message storage"
+      ],
+      "followUp": [
+        "How would you handle large group chats?",
+        "What about file sharing?",
+        "How would you implement read receipts?"
+      ],
+      "tags": ["system-design", "real-time", "messaging"],
+      "estimatedTime": 12
+    },
+    {
+      "id": "sd-003",
+      "type": "technical",
+      "difficulty": "medium",
+      "question": "Explain the CAP theorem and provide examples of systems that prioritize different aspects.",
+      "hints": [
+        "Consistency, Availability, Partition Tolerance",
+        "Think about trade-offs"
+      ],
+      "followUp": [
+        "Which would you prioritize for a banking system?",
+        "What about a social media feed?"
+      ],
+      "tags": ["distributed-systems", "cap-theorem", "fundamentals"],
+      "estimatedTime": 6
+    },
+    {
+      "id": "sd-004",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "Design a content delivery network (CDN). How would you optimize for global content delivery?",
+      "hints": [
+        "Consider edge locations and caching",
+        "Think about cache invalidation",
+        "Plan for routing and load balancing"
+      ],
+      "followUp": [
+        "How would you handle dynamic content?",
+        "What about security (DDoS protection)?",
+        "How would you monitor performance?"
+      ],
+      "tags": ["cdn", "caching", "performance", "infrastructure"],
+      "estimatedTime": 10
+    },
+    {
+      "id": "sd-005",
+      "type": "technical",
+      "difficulty": "medium",
+      "question": "What is database sharding and when would you use it? Explain different sharding strategies.",
+      "hints": [
+        "Think about horizontal vs vertical partitioning",
+        "Consider key-based vs range-based sharding"
+      ],
+      "followUp": [
+        "What are the challenges with sharding?",
+        "How would you handle cross-shard queries?"
+      ],
+      "tags": ["database", "sharding", "scalability"],
+      "estimatedTime": 7
+    },
+    {
+      "id": "sd-006",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "Design a rate limiting system for an API. How would you handle millions of requests per second?",
+      "hints": [
+        "Consider token bucket or leaky bucket algorithms",
+        "Think about distributed rate limiting",
+        "Plan for different rate limit tiers"
+      ],
+      "followUp": [
+        "How would you handle burst traffic?",
+        "What about rate limiting by user vs IP?",
+        "How would you communicate limits to clients?"
+      ],
+      "tags": ["rate-limiting", "api-design", "scalability"],
+      "estimatedTime": 9
+    },
+    {
+      "id": "sd-007",
+      "type": "technical",
+      "difficulty": "medium",
+      "question": "Explain the difference between SQL and NoSQL databases. When would you choose one over the other?",
+      "hints": [
+        "Consider data structure and relationships",
+        "Think about scalability and consistency",
+        "Look at query patterns"
+      ],
+      "followUp": [
+        "Can you name specific use cases for each?",
+        "What about polyglot persistence?"
+      ],
+      "tags": ["database", "sql", "nosql", "architecture"],
+      "estimatedTime": 6
+    },
+    {
+      "id": "sd-008",
+      "type": "scenario",
+      "difficulty": "hard",
+      "question": "Design a distributed cache system. How would you ensure consistency across multiple cache nodes?",
+      "hints": [
+        "Consider cache eviction policies (LRU, LFU)",
+        "Think about cache invalidation strategies",
+        "Plan for cache stampede prevention"
+      ],
+      "followUp": [
+        "How would you handle cache warmup?",
+        "What about monitoring and metrics?",
+        "How would you deal with hot keys?"
+      ],
+      "tags": ["caching", "distributed-systems", "performance"],
+      "estimatedTime": 10
+    }
+  ],
+  "skillsAssessed": [
+    "System architecture",
+    "Scalability patterns",
+    "Distributed systems",
+    "Database design",
+    "Caching strategies",
+    "Load balancing",
+    "Performance optimization",
+    "Trade-off analysis"
+  ]
+}

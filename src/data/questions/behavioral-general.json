@@ -1,0 +1,183 @@
+{
+  "metadata": {
+    "category": "behavioral-general",
+    "displayName": "Behavioral - General",
+    "description": "Common behavioral questions for all roles",
+    "difficulty": "intermediate",
+    "estimatedDuration": "45-60 minutes",
+    "questionCount": 10,
+    "version": "1.0.0"
+  },
+  "questions": [
+    {
+      "id": "bg-001",
+      "type": "behavioral",
+      "difficulty": "easy",
+      "question": "Tell me about a time when you faced a significant challenge at work. How did you handle it?",
+      "hints": [
+        "Use the STAR method (Situation, Task, Action, Result)",
+        "Be specific about your actions"
+      ],
+      "followUp": [
+        "What would you do differently if faced with a similar situation?",
+        "What did you learn from this experience?"
+      ],
+      "tags": ["problem-solving", "resilience", "star-method"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "bg-002",
+      "type": "behavioral",
+      "difficulty": "medium",
+      "question": "Describe a situation where you had to work with a difficult team member. How did you handle it?",
+      "hints": [
+        "Focus on your communication approach",
+        "Highlight conflict resolution skills"
+      ],
+      "followUp": [
+        "What was the outcome?",
+        "How did it affect team dynamics?"
+      ],
+      "tags": ["teamwork", "conflict-resolution", "communication"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "bg-003",
+      "type": "behavioral",
+      "difficulty": "medium",
+      "question": "Tell me about a time when you had to meet a tight deadline. How did you prioritize your work?",
+      "hints": [
+        "Discuss your time management strategy",
+        "Mention any tools or frameworks you used"
+      ],
+      "followUp": [
+        "Did you meet the deadline?",
+        "What would you do differently?"
+      ],
+      "tags": ["time-management", "prioritization", "pressure"],
+      "estimatedTime": 4
+    },
+    {
+      "id": "bg-004",
+      "type": "behavioral",
+      "difficulty": "easy",
+      "question": "Describe a project you're particularly proud of. What was your role and what made it successful?",
+      "hints": [
+        "Highlight your specific contributions",
+        "Quantify the impact if possible"
+      ],
+      "followUp": [
+        "What challenges did you face?",
+        "What did you learn from this project?"
+      ],
+      "tags": ["achievement", "impact", "project-management"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "bg-005",
+      "type": "behavioral",
+      "difficulty": "medium",
+      "question": "Tell me about a time when you made a mistake. How did you handle it?",
+      "hints": [
+        "Be honest and show accountability",
+        "Focus on what you learned"
+      ],
+      "followUp": [
+        "How did you prevent similar mistakes in the future?",
+        "How did others react?"
+      ],
+      "tags": ["accountability", "learning", "growth-mindset"],
+      "estimatedTime": 4
+    },
+    {
+      "id": "bg-006",
+      "type": "behavioral",
+      "difficulty": "hard",
+      "question": "Describe a situation where you had to persuade others to see things your way. What approach did you take?",
+      "hints": [
+        "Discuss your communication and influence strategies",
+        "Mention how you addressed objections"
+      ],
+      "followUp": [
+        "Were you successful?",
+        "What resistance did you encounter?"
+      ],
+      "tags": ["influence", "communication", "leadership"],
+      "estimatedTime": 6
+    },
+    {
+      "id": "bg-007",
+      "type": "behavioral",
+      "difficulty": "medium",
+      "question": "Tell me about a time when you had to adapt to a significant change at work. How did you manage it?",
+      "hints": [
+        "Show flexibility and resilience",
+        "Discuss your adaptation strategy"
+      ],
+      "followUp": [
+        "What was the most difficult part?",
+        "How did you help others adapt?"
+      ],
+      "tags": ["adaptability", "change-management", "resilience"],
+      "estimatedTime": 5
+    },
+    {
+      "id": "bg-008",
+      "type": "behavioral",
+      "difficulty": "easy",
+      "question": "Describe a time when you went above and beyond your job responsibilities. What motivated you?",
+      "hints": [
+        "Highlight initiative and dedication",
+        "Explain the impact of your extra effort"
+      ],
+      "followUp": [
+        "Was your effort recognized?",
+        "Would you do it again?"
+      ],
+      "tags": ["initiative", "dedication", "extra-mile"],
+      "estimatedTime": 4
+    },
+    {
+      "id": "bg-009",
+      "type": "behavioral",
+      "difficulty": "medium",
+      "question": "Tell me about a time when you received critical feedback. How did you respond?",
+      "hints": [
+        "Show openness to feedback",
+        "Discuss how you implemented changes"
+      ],
+      "followUp": [
+        "How did this feedback help you grow?",
+        "Do you actively seek feedback now?"
+      ],
+      "tags": ["feedback", "growth-mindset", "self-improvement"],
+      "estimatedTime": 4
+    },
+    {
+      "id": "bg-010",
+      "type": "behavioral",
+      "difficulty": "hard",
+      "question": "Describe a situation where you had to make a difficult decision with incomplete information. What was your approach?",
+      "hints": [
+        "Explain your decision-making process",
+        "Discuss how you mitigated risks"
+      ],
+      "followUp": [
+        "What was the outcome?",
+        "What would you do differently?"
+      ],
+      "tags": ["decision-making", "risk-management", "ambiguity"],
+      "estimatedTime": 6
+    }
+  ],
+  "skillsAssessed": [
+    "Communication",
+    "Problem-solving",
+    "Teamwork",
+    "Adaptability",
+    "Leadership",
+    "Conflict resolution",
+    "Time management",
+    "Growth mindset"
+  ]
+}

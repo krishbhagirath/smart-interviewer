@@ -32,3 +32,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# C++ / Presage Engine
+*.sh
+cmake-*-linux-x86_64.sh
+presage_quickstart/build/
+presage_quickstart/*.tmp
+*.tmp
+*.log
+
+# Runtime Data
+raw_vitals_log.csv
+interview_events.json
+latest_vitals.json
+question_*_summary.json
+
+# IDEs
+.vscode/
+.idea/
+

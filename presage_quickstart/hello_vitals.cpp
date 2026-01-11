@@ -15,6 +15,10 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include <filesystem>
+
+// MJPEG Streamer
+#include <nadjieb/mjpeg_streamer.hpp>
 
 #include <mutex>
 
@@ -134,10 +138,25 @@ struct SessionManager {
     }
 };
 
+// Subclass to expose protected 'recording' member
+class ExposedContainer : public container::CpuContinuousRestForegroundContainer {
+public:
+    using container::CpuContinuousRestForegroundContainer::CpuContinuousRestForegroundContainer;
+
+    void SetRecordingPublic(bool enable) {
+        this->recording = enable;
+    }
+};
+
 int main(int argc, char** argv) {
     // Initialize logging
     google::InitGoogleLogging(argv[0]);
     FLAGS_alsologtostderr = true;
+
+    // Cleanup stale trigger file
+    if (std::filesystem::exists("../vitals_trigger.tmp")) {
+        std::filesystem::remove("../vitals_trigger.tmp");
+    }
     
     // Get API key
     std::string api_key;
@@ -165,6 +184,7 @@ int main(int argc, char** argv) {
         settings.video_source.codec = presage::camera::CaptureCodec::MJPG;
         settings.video_source.auto_lock = true;
         
+        // set to false to ensure video callbacks still fire for streaming
         settings.headless = false;
         settings.enable_edge_metrics = true;
         settings.integration.api_key = api_key;
@@ -172,9 +192,14 @@ int main(int argc, char** argv) {
         // Fix for initialization error: buffer must be > 0.2s
         settings.continuous.preprocessed_data_buffer_duration_s = 0.5;
         
-        auto container = std::make_unique<container::CpuContinuousRestForegroundContainer>(settings);
+        auto container = std::make_unique<ExposedContainer>(settings);
         auto hud = std::make_unique<gui::OpenCvHud>(10, 0, 1260, 400);
         
+        // Initialize MJPEG Streamer
+        nadjieb::MJPEGStreamer streamer;
+        streamer.start(8080);
+        std::cout << "MJPEG Streamer started on http://localhost:8080/video_feed\n";
+
         auto status = container->SetOnCoreMetricsOutput(
             [&hud, &session_manager](const presage::physiology::MetricsBuffer& metrics, int64_t timestamp) {
                 bool has_data = !metrics.pulse().rate().empty() && !metrics.breathing().rate().empty();
@@ -194,13 +219,34 @@ int main(int argc, char** argv) {
                 }
 
                 hud->UpdateWithNewMetrics(metrics);
+                
+                // Export real-time vitals to JSON for frontend
+                float current_pulse = 0;
+                float current_breathing = 0;
+                if (!metrics.pulse().rate().empty()) current_pulse = metrics.pulse().rate().rbegin()->value();
+                if (!metrics.breathing().rate().empty()) current_breathing = metrics.breathing().rate().rbegin()->value();
+
+                std::ofstream vitals_file("../vitals.tmp");
+                if (vitals_file.is_open()) {
+                    vitals_file << "{\n"
+                                << "  \"pulse\": " << std::fixed << std::setprecision(1) << current_pulse << ",\n"
+                                << "  \"breathing\": " << current_breathing << "\n"
+                                << "}\n";
+                    vitals_file.close();
+                    std::filesystem::rename("../vitals.tmp", "../latest_vitals.json");
+                }
+
                 return absl::OkStatus();
             }
         ); 
         
+        // Create raw pointer for lambda capture
+        auto* raw_container = container.get();
+
         status = container->SetOnVideoOutput(
-            [&hud, &session_manager](cv::Mat& frame, int64_t timestamp) {
-                hud->Render(frame).IgnoreError();
+            [&hud, &session_manager, &streamer, raw_container](cv::Mat& frame, int64_t timestamp) {
+                // HUD disabled for raw feed
+                // hud->Render(frame).IgnoreError();
                 
                 // Overlay recording status
                 if (session_manager.is_recording) {
@@ -209,18 +255,21 @@ int main(int argc, char** argv) {
                                 cv::Point(70, 60), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
                 }
 
-                cv::imshow("SmartSpectra Hello Vitals", frame);
-                
-                int key = cv::waitKey(1) & 0xFF;
-                if (key == 'q' || key == 27) {
-                    return absl::CancelledError("User quit");
-                } else if (key == 'a') {
-                    if (session_manager.is_recording) {
-                        session_manager.EndSession();
-                    } else {
-                        session_manager.StartSession();
-                    }
+                // Stream frame
+                std::vector<uchar> buff_bgr;
+                cv::imencode(".jpg", frame, buff_bgr);
+                std::string content(buff_bgr.begin(), buff_bgr.end());
+                streamer.publish("/video_feed", content);
+
+                // Remote Trigger Check
+                if (std::filesystem::exists("../vitals_trigger.tmp")) {
+                    std::cout << "Frontend Trigger Received: Starting Tracking\n";
+                    session_manager.StartSession();
+                    // Also enable internal SDK recording via exposed method
+                    raw_container->SetRecordingPublic(true);
+                    std::filesystem::remove("../vitals_trigger.tmp");
                 }
+
                 return absl::OkStatus();
             }
         ); 

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -isystem /usr/local/include/physiology -isystem /usr/local/include/physiology/interface -isystem /usr/include/opencv4
+CXX_INCLUDES = -I/mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include -isystem /usr/local/include/physiology -isystem /usr/local/include/physiology/interface -isystem /usr/include/opencv4
 
 CXX_FLAGS = -std=gnu++17
 

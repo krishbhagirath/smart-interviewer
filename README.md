@@ -1,4 +1,4 @@
-# Smart Interviewer
+# Intervyou
 
 **AI-powered interview practice platform integrated with Presage Vitals Sensing.**
 
@@ -16,7 +16,7 @@ This monorepo contains the Next.js frontend and the C++ Presage Vitals Engine fo
 ## 🏗️ Project Structure
 
 ```
-smart-interviewer/
+intervyou/
 ├── src/                    # Next.js Frontend
 │   ├── app/                # App Router (Pages & APIs)
 │   ├── components/         # React Components

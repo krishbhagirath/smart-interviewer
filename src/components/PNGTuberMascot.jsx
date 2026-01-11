@@ -70,7 +70,7 @@ const PNGTuberMascot = ({ isPlaying }) => {
           alt="Interview Mascot"
           className="avatar-img w-full h-full object-cover transition-transform duration-200 ease-out"
           style={{
-            filter: 'drop-shadow(0 0 20px rgba(108, 99, 255, 0.2))',
+            filter: 'drop-shadow(0 0 25px rgba(59, 130, 246, 0.6))',
             willChange: 'transform'
           }}
           onError={() => setImageError(true)}

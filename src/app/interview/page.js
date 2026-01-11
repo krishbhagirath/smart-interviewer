@@ -319,19 +319,11 @@ export default function InterviewPage() {
         <GlassCard className="p-8">
 
           {/* Header */}
-          <div className="mb-6 flex justify-between items-end">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Interview Session</h1>
-              <div className="flex gap-4 text-sm text-white/70">
-                <span><strong>Type:</strong> {setupData.interviewType}</span>
-                <span><strong>Level:</strong> {setupData.experienceLevel}</span>
-              </div>
-            </div>
-            <div className={`px-4 py-2 rounded-full text-sm font-bold ${interviewState === 'INTERVIEW' ? 'bg-blue-500/20 text-blue-200' :
-              interviewState === 'COMPLETE' ? 'bg-green-500/20 text-green-200' :
-                'bg-white/10 text-white/50'
-              }`}>
-              {interviewState}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-white mb-2">Interview Session</h1>
+            <div className="flex gap-4 text-sm text-white/70">
+              <span><strong>Type:</strong> {setupData.interviewType}</span>
+              <span><strong>Level:</strong> {setupData.experienceLevel}</span>
             </div>
           </div>
 
@@ -345,7 +337,7 @@ export default function InterviewPage() {
                   <PNGTuberMascot isPlaying={isSpeaking} />
                 </div>
                 <div className="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded">
-                  <span className="text-white text-sm font-medium">AI Interviewer</span>
+                  <span className="text-white text-sm font-medium">Nemo the Interviewer</span>
                 </div>
               </div>
 
@@ -372,10 +364,10 @@ export default function InterviewPage() {
                 {permissionGranted && (
                   <>
                     {/* Status Badge */}
-                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/80 px-3 py-1 rounded-full z-10">
+                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-blue-600/90 px-3 py-1 rounded-full z-10 shadow-lg shadow-blue-500/50">
                       <div className={`w-3 h-3 bg-white rounded-full ${isSpeaking ? '' : 'animate-pulse'}`}></div>
                       <span className="text-white text-sm font-medium">
-                        {isSpeaking ? 'Agent Speaking' : isTranscribing ? 'Processing...' : 'Live & Rec'}
+                        {isSpeaking ? 'Agent Speaking' : isTranscribing ? 'Processing...' : 'Live'}
                       </span>
                     </div>
 
@@ -397,35 +389,35 @@ export default function InterviewPage() {
 
           {/* Vitals Data (Below Grid) */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white/10 rounded-lg p-4 flex flex-col items-center justify-center backdrop-blur-sm border border-white/5">
-              <span className="text-white/60 text-sm mb-1 uppercase tracking-wider">Heart Rate</span>
+            <div className="bg-blue-950/50 rounded-lg p-3 flex flex-col items-center justify-center backdrop-blur-sm border border-blue-500/40 shadow-lg shadow-blue-500/20">
+              <span className="text-blue-200 text-xs mb-1 uppercase tracking-wider">Heart Rate</span>
               <div className="flex items-baseline gap-1">
-                <span className={`text-4xl font-bold ${vitals.pulse > 100 ? 'text-red-500' : vitals.pulse >= 60 ? 'text-yellow-400' : 'text-green-500'}`}>
+                <span className={`text-3xl font-bold ${vitals.pulse > 100 ? 'text-red-400' : vitals.pulse >= 60 ? 'text-blue-400' : 'text-cyan-400'}`}>
                   {vitals.pulse > 0 ? vitals.pulse : '--'}
                 </span>
-                <span className="text-white/60 text-sm">BPM</span>
+                <span className="text-blue-300 text-xs">BPM</span>
               </div>
-              <span className="text-xs text-white/40 mt-1">
+              <span className="text-xs text-blue-300 mt-0.5">
                 {vitals.pulse > 100 ? 'Stress' : vitals.pulse >= 60 ? 'Normal' : 'Relaxed'}
               </span>
             </div>
-            <div className="bg-white/10 rounded-lg p-4 flex flex-col items-center justify-center backdrop-blur-sm border border-white/5">
-              <span className="text-white/60 text-sm mb-1 uppercase tracking-wider">Breathing Rate</span>
+            <div className="bg-blue-950/50 rounded-lg p-3 flex flex-col items-center justify-center backdrop-blur-sm border border-blue-500/40 shadow-lg shadow-blue-500/20">
+              <span className="text-blue-200 text-xs mb-1 uppercase tracking-wider">Breathing Rate</span>
               <div className="flex items-baseline gap-1">
-                <span className={`text-4xl font-bold ${vitals.breathing > 20 ? 'text-red-500' : vitals.breathing >= 12 ? 'text-yellow-400' : 'text-green-500'}`}>
+                <span className={`text-3xl font-bold ${vitals.breathing > 20 ? 'text-red-400' : vitals.breathing >= 12 ? 'text-blue-400' : 'text-cyan-400'}`}>
                   {vitals.breathing > 0 ? vitals.breathing : '--'}
                 </span>
-                <span className="text-white/60 text-sm">BPM</span>
+                <span className="text-blue-300 text-xs">BPM</span>
               </div>
-              <span className="text-xs text-white/40 mt-1">
+              <span className="text-xs text-blue-300 mt-0.5">
                 {vitals.breathing > 20 ? 'Stress' : vitals.breathing >= 12 ? 'Normal' : 'Deep Relaxation'}
               </span>
             </div>
           </div>
 
           {/* Status Text Area */}
-          <div className="mb-6 p-6 bg-white/5 rounded-xl border border-white/10 min-h-[100px] flex items-center justify-center text-center">
-            <h2 className="text-xl md:text-2xl text-white font-medium">
+          <div className="mb-6 p-6 bg-blue-950/40 rounded-xl border border-blue-500/30 min-h-[100px] flex items-center justify-center text-center shadow-lg shadow-blue-500/10">
+            <h2 className="text-xl md:text-2xl text-blue-50 font-medium">
               {statusText}
             </h2>
           </div>

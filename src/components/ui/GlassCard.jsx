@@ -7,10 +7,10 @@ export default function GlassCard({
   hover = false
 }) {
   const variants = {
-    default: 'bg-white/10 border-white/20',
-    light: 'bg-white/15 border-white/30',
-    dark: 'bg-black/20 border-white/10',
-    accent: 'bg-gradient-to-br from-white/10 to-white/5 border-white/20',
+    default: 'bg-white/10 border-blue-500/30 sapphire-shimmer',
+    light: 'bg-white/15 border-blue-400/30',
+    dark: 'bg-black/20 border-blue-600/20',
+    accent: 'bg-gradient-to-br from-blue-950/40 to-indigo-950/20 border-blue-500/40 sapphire-shimmer',
   };
 
   const hoverEffect = hover

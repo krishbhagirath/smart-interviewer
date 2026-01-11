@@ -4,13 +4,13 @@
 
 :root {
   --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --glass-border: rgba(59, 130, 246, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(15, 82, 186, 0.4);
   --glass-blur: 16px;
 
-  --gradient-1: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  --gradient-2: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-  --gradient-3: linear-gradient(135deg, #27272a 0%, #3f3f46 100%);
+  --gradient-1: linear-gradient(135deg, #0a1628 0%, #0f52ba 100%);
+  --gradient-2: linear-gradient(135deg, #082567 0%, #1e40af 100%);
+  --gradient-3: linear-gradient(135deg, #0c4a6e 0%, #3b82f6 100%);
 }
 
 @layer components {
@@ -23,9 +23,90 @@
   }
 
   .gradient-bg {
-    background: linear-gradient(-45deg, #1a1a1a, #2d3748, #374151, #1e293b);
+    background: linear-gradient(-45deg, #000000, #0a1628, #082567, #0f52ba, #1e3a8a);
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
+  }
+
+  .sapphire-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sapphire-shimmer::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(59, 130, 246, 0.15) 50%,
+      transparent 70%
+    );
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+  }
+
+  /* Animated particles */
+  .particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    background: rgba(59, 130, 246, 0.4);
+    border-radius: 50%;
+    animation: particle-float 8s ease-in-out infinite;
+  }
+
+  @keyframes particle-float {
+    0%, 100% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(50px);
+      opacity: 0;
+    }
+  }
+
+  /* Pulse rings */
+  .pulse-ring {
+    position: absolute;
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    border-radius: 50%;
+    animation: pulse-expand 4s ease-out infinite;
+  }
+
+  @keyframes pulse-expand {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
   }
 }
 

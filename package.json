@@ -1,7 +1,7 @@
 {
-  "name": "smart-interviewer",
+  "name": "intervyou",
   "version": "1.0.0",
-  "description": "Smart Interviewer with ElevenLabs Integration",
+  "description": "Intervyou - AI-Powered Interview Practice with ElevenLabs Integration",
   "private": true,
   "scripts": {
     "dev": "next dev",

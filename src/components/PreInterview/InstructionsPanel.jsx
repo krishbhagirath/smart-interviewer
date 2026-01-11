@@ -5,11 +5,11 @@ export default function InstructionsPanel() {
   return (
     <GlassCard className="p-6 mb-6">
       <h2 className="text-2xl font-bold text-white mb-4">
-        Welcome to Smart Interviewer
+        Welcome to Intervyou
       </h2>
 
       <p className="text-white/80 mb-4">
-        Prepare for your next interview with AI-powered practice sessions.
+        Prepare for your next interview with AI-powered practice interviews.
         Here&apos;s how it works:
       </p>
 

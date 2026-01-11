@@ -79,12 +79,6 @@ export default function HomePage() {
             </GlassButton>
           </form>
         </GlassCard>
-
-        <footer className="text-center mt-6">
-          <p className="text-white/60 text-sm">
-            Powered by AI • Built for success
-          </p>
-        </footer>
       </div>
     </main>
   );

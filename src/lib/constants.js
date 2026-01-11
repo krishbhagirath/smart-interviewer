@@ -60,15 +60,11 @@ export const INSTRUCTIONS = [
     text: 'Select your interview type and provide your background information',
   },
   {
-    icon: '⏱️',
-    text: 'Most interviews take 45-60 minutes to complete',
-  },
-  {
     icon: '💡',
     text: 'Answer thoughtfully and provide specific examples when possible',
   },
   {
     icon: '🎥',
-    text: 'Speak clearly and maintain eye contact with the camera',
+    text: 'Speak clearly, remain calm, and maintain eye contact with the camera',
   },
 ];

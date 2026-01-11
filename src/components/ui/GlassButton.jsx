@@ -12,7 +12,7 @@ export default function GlassButton({
   const baseStyles = 'glass-effect rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
-    primary: 'text-white hover:bg-white/20 hover:shadow-glass-lg active:scale-95',
+    primary: 'text-white bg-blue-600/30 hover:bg-blue-500/40 hover:shadow-glass-lg active:scale-95 border-blue-400/50 shadow-blue-500/30',
     secondary: 'text-white/80 hover:text-white hover:bg-white/10',
   };
 

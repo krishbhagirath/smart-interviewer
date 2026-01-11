@@ -12,12 +12,12 @@ module.exports = {
           light: 'rgba(255, 255, 255, 0.1)',
           medium: 'rgba(255, 255, 255, 0.15)',
           dark: 'rgba(0, 0, 0, 0.2)',
-          border: 'rgba(255, 255, 255, 0.2)',
+          border: 'rgba(59, 130, 246, 0.3)',
         },
         gradient: {
-          start: '#1e293b',
-          middle: '#334155',
-          end: '#374151',
+          start: '#0a1628',
+          middle: '#0f52ba',
+          end: '#3b82f6',
         }
       },
       backdropBlur: {
@@ -58,10 +58,10 @@ module.exports = {
         },
         'glow': {
           '0%': {
-            'box-shadow': '0 0 20px rgba(102, 126, 234, 0.5)'
+            'box-shadow': '0 0 20px rgba(20, 184, 166, 0.5)'
           },
           '100%': {
-            'box-shadow': '0 0 40px rgba(102, 126, 234, 0.8)'
+            'box-shadow': '0 0 40px rgba(45, 212, 191, 0.8)'
           },
         },
       },

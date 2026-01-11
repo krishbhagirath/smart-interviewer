@@ -1,4 +1,4 @@
-# Intervyou
+# Hiready 
 
 **AI-powered interview practice platform integrated with Presage Vitals Sensing.**
 

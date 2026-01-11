@@ -281,9 +281,15 @@ export default function InterviewPage() {
 
     if (isLast) {
       setInterviewState('COMPLETE');
-      setStatusText("Interview Complete.");
-      startVitalsSession('STOP'); // Trigger C++: STOP Recording for Q5/Last Q
-      speak("Thank you for completing your practice interview. Your analysis will be generated shortly.");
+      setStatusText("Interview Complete. Generating Report...");
+      startVitalsSession('STOP'); // Trigger C++: STOP Recording
+      speak("Thank you. We are analyzing your responses now.");
+
+      // Navigate to Report Page after a short delay for effect
+      setTimeout(() => {
+        router.push(`/report?sessionId=${sessionId}`);
+      }, 3000);
+
     } else {
       const nextIndex = currentQuestionIndex + 1;
       const transition = transitionsData[Math.floor(Math.random() * transitionsData.length)];

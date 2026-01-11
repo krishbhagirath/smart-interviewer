@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/mnt/c/Users/ArunT/.gemini/antigravity/scratch/presage_quickstart/hello_vitals.cpp" "CMakeFiles/hello_vitals.dir/hello_vitals.cpp.o" "gcc" "CMakeFiles/hello_vitals.dir/hello_vitals.cpp.o.d"
+  "/mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/hello_vitals.cpp" "CMakeFiles/hello_vitals.dir/hello_vitals.cpp.o" "gcc" "CMakeFiles/hello_vitals.dir/hello_vitals.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

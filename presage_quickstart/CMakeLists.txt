@@ -14,3 +14,5 @@ target_link_libraries(hello_vitals
     SmartSpectra::Gui
     ${OpenCV_LIBS}
 )
+
+target_include_directories(hello_vitals PRIVATE include)

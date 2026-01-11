@@ -1,5 +1,5 @@
 CMakeFiles/hello_vitals.dir/hello_vitals.cpp.o: \
- /mnt/c/Users/ArunT/.gemini/antigravity/scratch/presage_quickstart/hello_vitals.cpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/hello_vitals.cpp \
  /usr/include/stdc-predef.h \
  /usr/local/include/smartspectra/container/foreground_container.hpp \
  /usr/local/include/physiology/modules/configuration.h \
@@ -793,4 +793,65 @@ CMakeFiles/hello_vitals.dir/hello_vitals.cpp.o: \
  /usr/include/c++/11/fstream \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc
+ /usr/include/c++/11/bits/fstream.tcc \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/mjpeg_streamer.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/utils/version.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/net/http_request.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/net/http_response.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/net/listener.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/net/socket.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/utils/platform.hpp \
+ /usr/include/arpa/inet.h /usr/include/netinet/in.h \
+ /usr/include/x86_64-linux-gnu/sys/socket.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
+ /usr/include/x86_64-linux-gnu/bits/socket.h \
+ /usr/include/x86_64-linux-gnu/bits/socket_type.h \
+ /usr/include/x86_64-linux-gnu/bits/sockaddr.h \
+ /usr/include/x86_64-linux-gnu/asm/socket.h \
+ /usr/include/asm-generic/socket.h /usr/include/linux/posix_types.h \
+ /usr/include/linux/stddef.h \
+ /usr/include/x86_64-linux-gnu/asm/posix_types.h \
+ /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
+ /usr/include/asm-generic/posix_types.h \
+ /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
+ /usr/include/asm-generic/bitsperlong.h \
+ /usr/include/x86_64-linux-gnu/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
+ /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/poll.h \
+ /usr/include/x86_64-linux-gnu/sys/poll.h \
+ /usr/include/x86_64-linux-gnu/bits/poll.h /usr/include/signal.h \
+ /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+ /usr/include/x86_64-linux-gnu/bits/signum-arch.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+ /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+ /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+ /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+ /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+ /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+ /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+ /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+ /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+ /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+ /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
+ /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+ /usr/include/x86_64-linux-gnu/bits/sigthread.h \
+ /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
+ /usr/include/x86_64-linux-gnu/sys/ioctl.h \
+ /usr/include/x86_64-linux-gnu/bits/ioctls.h \
+ /usr/include/x86_64-linux-gnu/asm/ioctls.h \
+ /usr/include/asm-generic/ioctls.h /usr/include/linux/ioctl.h \
+ /usr/include/x86_64-linux-gnu/asm/ioctl.h \
+ /usr/include/asm-generic/ioctl.h \
+ /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
+ /usr/include/x86_64-linux-gnu/sys/ttydefaults.h \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/utils/non_copyable.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/utils/runnable.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/net/publisher.hpp \
+ /mnt/c/Users/ArunT/.gemini/antigravity/scratch/smart-interviewer/presage_quickstart/include/nadjieb/net/topic.hpp \
+ /usr/include/c++/11/shared_mutex /usr/include/c++/11/condition_variable

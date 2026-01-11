@@ -52,6 +52,21 @@ function ReportContent() {
         fetchReport();
     }, [sessionId]);
 
+    const handleDownloadPDF = async () => {
+        const element = document.getElementById('report-content');
+        const html2pdf = (await import('html2pdf.js')).default;
+
+        const opt = {
+            margin: 1,
+            filename: `Interview_Report_${sessionId}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-white">
@@ -75,11 +90,26 @@ function ReportContent() {
 
     return (
         <div className="space-y-6">
-            <div className="prose prose-invert max-w-none">
-                <ReactMarkdown>{report}</ReactMarkdown>
+            <div id="report-content" className="prose prose-invert max-w-none">
+                <ReactMarkdown
+                    components={{
+                        h1: ({ node, ...props }) => <h1 className="text-4xl font-extrabold text-white mb-6 border-b border-white/20 pb-2" {...props} />,
+                        h2: ({ node, ...props }) => <h2 className="text-3xl font-bold text-blue-300 mt-8 mb-4" {...props} />,
+                        h3: ({ node, ...props }) => <h3 className="text-2xl font-semibold text-white/90 mt-6 mb-3" {...props} />,
+                        p: ({ node, ...props }) => <p className="text-lg text-white/80 leading-relaxed mb-4" {...props} />,
+                        strong: ({ node, ...props }) => <strong className="text-blue-200 font-bold" {...props} />,
+                        ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 text-white/80" {...props} />,
+                        li: ({ node, ...props }) => <li className="text-lg" {...props} />,
+                    }}
+                >
+                    {report}
+                </ReactMarkdown>
             </div>
 
-            <div className="flex justify-center pt-8 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 border-t border-white/10 no-print">
+                <GlassButton onClick={handleDownloadPDF} variant="secondary">
+                    Download PDF 📄
+                </GlassButton>
                 <GlassButton onClick={() => router.push('/')} variant="primary">
                     Start New Session
                 </GlassButton>

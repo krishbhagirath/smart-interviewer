@@ -303,8 +303,13 @@ export default function InterviewPage() {
     }
   };
 
-  const handleExit = () => {
-    startVitalsSession('STOP'); // Ensure C++ stops if user exits early
+  const handleViewResults = () => {
+    startVitalsSession('STOP');
+    router.push(`/results?sessionId=${sessionId}`);
+  };
+
+  const handleSkipToHome = () => {
+    startVitalsSession('STOP');
     router.push('/');
   };
 
@@ -441,9 +446,14 @@ export default function InterviewPage() {
                 </GlassButton>
               )}
               {interviewState === 'COMPLETE' && (
-                <GlassButton onClick={handleExit} size="large" variant="secondary">
-                  Exit to Home
-                </GlassButton>
+                <div className="flex gap-4">
+                  <GlassButton onClick={handleViewResults} size="large" variant="primary">
+                    View Feedback Report
+                  </GlassButton>
+                  <GlassButton onClick={handleSkipToHome} size="large" variant="secondary">
+                    Skip to Home
+                  </GlassButton>
+                </div>
               )}
             </div>
           )}

@@ -7,6 +7,7 @@ import GlassCard from '@/components/ui/GlassCard';
 import GlassButton from '@/components/ui/GlassButton';
 import PNGTuberMascot from '@/components/PNGTuberMascot';
 import AudioVisualizer from '@/components/ui/AudioVisualizer';
+import CameraFeed from '@/components/CameraFeed';
 
 // Import Data
 import questionsData from '@/data/questions.json';
@@ -18,15 +19,12 @@ export default function InterviewPage() {
 
   // --- State from HEAD (Vitals) ---
   const [vitals, setVitals] = useState({ pulse: 0, breathing: 0 });
-  // Note: HEAD used isRecording for Vitals status. We'll rename local recording state to avoid confusion.
-  // actually HEAD `isRecording` was for "Is Session Active".
   const [isSessionActive, setIsSessionActive] = useState(false);
 
   // --- State from Feature (Audio/Cam) ---
   const [stream, setStream] = useState(null);
   const [error, setError] = useState('');
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const videoRef = useRef(null);
   const [sessionId, setSessionId] = useState(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
@@ -53,10 +51,8 @@ export default function InterviewPage() {
     setSessionId(Date.now().toString());
     setStatusText("Click Start to begin.");
 
-    // Vitals Polling (HEAD)
+    // Vitals Polling
     const interval = setInterval(async () => {
-      // Only poll if session is active? HEAD polled always but state likely empty.
-      // We'll keep HEAD logic:
       try {
         const res = await fetch('/api/vitals', { cache: 'no-store' });
         if (res.ok) {
@@ -68,16 +64,16 @@ export default function InterviewPage() {
 
     return () => {
       clearInterval(interval);
-      stopCamera();
       stopAudioRecording();
     };
   }, [router]);
 
-  // --- Camera Logic (Feature) ---
-  const startCamera = async () => {
+  // --- Microphone Logic (Audio Only) ---
+  const startMicrophone = async () => {
     try {
+      // REQUEST AUDIO ONLY - Camera is handled by C++ Backend
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+        video: false,
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -88,22 +84,9 @@ export default function InterviewPage() {
       setStream(mediaStream);
       setPermissionGranted(true);
       setError('');
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
     } catch (err) {
-      console.error('Error accessing media devices:', err);
-      setError('Failed to access camera/microphone. Please grant permissions.');
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-      setPermissionGranted(false);
-      if (videoRef.current) videoRef.current.srcObject = null;
+      console.error('Error accessing microphone:', err);
+      setError('Failed to access microphone. Please grant permissions.');
     }
   };
 
@@ -118,9 +101,8 @@ export default function InterviewPage() {
     }
   };
 
-  // --- Audio Queue & TTS (Merged) ---
+  // --- Audio Queue & TTS ---
   const speak = (text) => {
-    // Feature logic requires stopping recording before speaking?
     stopAudioRecording();
 
     audioQueueRef.current = audioQueueRef.current.then(async () => {
@@ -153,20 +135,17 @@ export default function InterviewPage() {
     });
   };
 
-  // --- Recording Logic (Feature) ---
+  // --- Recording Logic ---
   const startAudioRecording = () => {
     if (!stream || isAudioRecordingRef.current) return;
     try {
-      const audioTracks = stream.getAudioTracks();
-      if (audioTracks.length === 0) return;
-      const audioStream = new MediaStream(audioTracks);
-
+      // Stream is Audio-only now, so just use it directly
       let options = {};
       if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = { mimeType: 'audio/webm;codecs=opus' };
       else if (MediaRecorder.isTypeSupported('audio/webm')) options = { mimeType: 'audio/webm' };
       else if (MediaRecorder.isTypeSupported('audio/mp4')) options = { mimeType: 'audio/mp4' };
 
-      const recorder = new MediaRecorder(audioStream, options);
+      const recorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
 
@@ -212,7 +191,6 @@ export default function InterviewPage() {
 
         try {
           const base64 = await blobToBase64(audioBlob);
-          // Send to API
           await sendToGoogle(base64);
         } catch (e) { console.error(e); }
         finally {
@@ -255,23 +233,12 @@ export default function InterviewPage() {
   // --- Interaction Handlers ---
 
   const handleStart = async () => {
-    // Start Camera Logic (Request Permissions)
-    await startCamera();
-
-    // Note: we can't start vitals until permission granted? 
-    // We will do it in sequence. After camera starts, valid stream exists.
+    // Start Microphone (Audio Only)
+    await startMicrophone();
   };
 
-  // We need a secondary step? 
-  // Feature logic: `startCamera` was manual button. Then `handleStart` was "Start Interview".
-  // HEAD logic: `handleStart` was just "Start".
-  // Merged: User clicks "Enable Camera". Then clicks "Start Interview".
-
-  // If permission NOT granted, show button to enable.
-  // If granted, show "Start Interview".
-
   const handleInterviewStart = () => {
-    startVitalsSession(); // HEAD logic
+    startVitalsSession(); // Trigger C++ Backend
 
     setInterviewState('READY');
     setStatusText("Are you ready to start?");
@@ -283,7 +250,6 @@ export default function InterviewPage() {
   };
 
   const handleReady = () => {
-    // Stop intro recording
     if (isAudioRecordingRef.current && mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       isAudioRecordingRef.current = false;
@@ -350,8 +316,8 @@ export default function InterviewPage() {
               </div>
             </div>
             <div className={`px-4 py-2 rounded-full text-sm font-bold ${interviewState === 'INTERVIEW' ? 'bg-blue-500/20 text-blue-200' :
-                interviewState === 'COMPLETE' ? 'bg-green-500/20 text-green-200' :
-                  'bg-white/10 text-white/50'
+              interviewState === 'COMPLETE' ? 'bg-green-500/20 text-green-200' :
+                'bg-white/10 text-white/50'
               }`}>
               {interviewState}
             </div>
@@ -371,23 +337,21 @@ export default function InterviewPage() {
                 </div>
               </div>
 
-              {/* Video Preview (Right) - Manual Video Tag for Logic Control */}
+              {/* Video Preview (Right) - USES BACKEND CameraFeed */}
               <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className={`absolute inset-0 w-full h-full object-cover ${permissionGranted ? 'block' : 'hidden'}`}
-                />
+
+                {/* 1. The MJPEG Stream from C++ */}
+                <div className="absolute inset-0 w-full h-full">
+                  <CameraFeed />
+                </div>
 
                 {!permissionGranted && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
                     <div className="text-center">
-                      <div className="text-6xl mb-4">📹</div>
-                      <p className="text-white/70 mb-4">Enable camera to start</p>
-                      <GlassButton onClick={startCamera}>
-                        Enable Camera & Microphone
+                      <div className="text-6xl mb-4">🎤</div>
+                      <p className="text-white/70 mb-4">Enable microphone to start</p>
+                      <GlassButton onClick={handleStart}>
+                        Enable Microphone
                       </GlassButton>
                     </div>
                   </div>
@@ -403,15 +367,15 @@ export default function InterviewPage() {
                       </span>
                     </div>
 
-                    {/* Audio Visualizer Overlay on YOU */}
-                    <div className="absolute bottom-4 left-4 right-4 h-16 bg-black/40 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 pointer-events-none">
+                    {/* Audio Visualizer Overlay */}
+                    <div className="absolute bottom-4 left-4 right-4 h-16 bg-black/40 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 pointer-events-none z-10">
                       <AudioVisualizer stream={stream} isListening={!isSpeaking && !isTranscribing} />
                     </div>
                   </>
                 )}
 
                 {isTranscribing && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none z-20">
                     <div className="text-white font-medium animate-pulse">Transcribing...</div>
                   </div>
                 )}
@@ -446,7 +410,6 @@ export default function InterviewPage() {
               </span>
             </div>
           </div>
-
 
           {/* Status Text Area */}
           <div className="mb-6 p-6 bg-white/5 rounded-xl border border-white/10 min-h-[100px] flex items-center justify-center text-center">
@@ -484,7 +447,7 @@ export default function InterviewPage() {
           {!permissionGranted && (
             <div className="mt-8 p-4 bg-white/5 rounded-lg text-center">
               <p className="text-white/70 text-sm">
-                Enable your camera to see the interface.
+                Enable your microphone to begin.
               </p>
             </div>
           )}
@@ -494,3 +457,4 @@ export default function InterviewPage() {
     </main>
   );
 }
+

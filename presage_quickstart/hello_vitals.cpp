@@ -218,6 +218,30 @@ public:
     }
 };
 
+#include <deque>
+
+// Helper struct for Data Smoothing (Simple Moving Average)
+struct Smoother {
+    std::deque<float> history;
+    size_t window_size;
+
+    Smoother(size_t size = 15) : window_size(size) {}
+
+    float Update(float new_val) {
+        if (new_val == 0) return 0; // Ignore zeros or handle them? For now, pass through or ignore. 
+                                    // Actually, let's reset if 0 to avoid dragging down average?
+                                    // Or just push. SmartSpectra returns 0 if no vitals.
+        if (new_val <= 1.0f) return 0; // Filter noise/initialization
+
+        history.push_back(new_val);
+        if (history.size() > window_size) history.pop_front();
+        
+        float sum = 0;
+        for (float v : history) sum += v;
+        return sum / history.size();
+    }
+};
+
 int main(int argc, char** argv) {
     // Initialize logging
     google::InitGoogleLogging(argv[0]);
@@ -240,6 +264,12 @@ int main(int argc, char** argv) {
     }
     
     SessionManager session_manager;
+    
+    // Create Smoothers
+    // Window size 30 @ ~30fps = 1 second average. Adjust as needed.
+    Smoother pulse_smoother(30);
+    Smoother breathing_smoother(30);
+
     std::cout << "Starting SmartSpectra Hello Vitals with Logging...\n";
     
     try {
@@ -271,8 +301,18 @@ int main(int argc, char** argv) {
         std::cout << "MJPEG Streamer started on http://localhost:8080/video_feed\n";
 
         auto status = container->SetOnCoreMetricsOutput(
-            [&hud, &session_manager](const presage::physiology::MetricsBuffer& metrics, int64_t timestamp) {
+            [&hud, &session_manager, &pulse_smoother, &breathing_smoother](const presage::physiology::MetricsBuffer& metrics, int64_t timestamp) {
                 bool has_data = !metrics.pulse().rate().empty() && !metrics.breathing().rate().empty();
+                
+                // Get Raw Values
+                float raw_pulse = 0;
+                float raw_breathing = 0;
+                if (!metrics.pulse().rate().empty()) raw_pulse = metrics.pulse().rate().rbegin()->value();
+                if (!metrics.breathing().rate().empty()) raw_breathing = metrics.breathing().rate().rbegin()->value();
+
+                // Apply Smoothing
+                float smoothed_pulse = pulse_smoother.Update(raw_pulse);
+                float smoothed_breathing = breathing_smoother.Update(raw_breathing);
 
                 // Auto-session management removed for manual 'a' key control
                 if (session_manager.is_recording) {
@@ -281,26 +321,19 @@ int main(int argc, char** argv) {
                 
                 // Real-time terminal output - Now on a new line
                 if (has_data) {
-                    float pulse = metrics.pulse().rate().rbegin()->value();
-                    float breathing = metrics.breathing().rate().rbegin()->value();
-                    std::cout << "Vitals - Pulse: " << std::fixed << std::setprecision(1) << pulse 
-                              << " BPM, Breathing: " << breathing << " BPM (Recording: " 
-                              << (session_manager.is_recording ? "ON" : "OFF") << ")\n";
+                    std::cout << "Vitals (S) - Pulse: " << std::fixed << std::setprecision(1) << smoothed_pulse 
+                              << " BPM, Breathing: " << smoothed_breathing << " BPM (Recording: " 
+                              << (session_manager.is_recording ? "ON" : "OFF") << ")\r" << std::flush; // Use \r to reduce spam
                 }
 
                 hud->UpdateWithNewMetrics(metrics);
                 
-                // Export real-time vitals to JSON for frontend
-                float current_pulse = 0;
-                float current_breathing = 0;
-                if (!metrics.pulse().rate().empty()) current_pulse = metrics.pulse().rate().rbegin()->value();
-                if (!metrics.breathing().rate().empty()) current_breathing = metrics.breathing().rate().rbegin()->value();
-
+                // Export real-time SMOOTHED vitals to JSON for frontend
                 std::ofstream vitals_file("../vitals.tmp");
                 if (vitals_file.is_open()) {
                     vitals_file << "{\n"
-                                << "  \"pulse\": " << std::fixed << std::setprecision(1) << current_pulse << ",\n"
-                                << "  \"breathing\": " << current_breathing << ",\n"
+                                << "  \"pulse\": " << std::fixed << std::setprecision(1) << smoothed_pulse << ",\n"
+                                << "  \"breathing\": " << smoothed_breathing << ",\n"
                                 << "  \"recording\": " << (session_manager.is_recording ? "true" : "false") << "\n"
                                 << "}\n";
                     vitals_file.close();

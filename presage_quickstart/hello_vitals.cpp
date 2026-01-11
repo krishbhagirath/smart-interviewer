@@ -266,9 +266,9 @@ int main(int argc, char** argv) {
     SessionManager session_manager;
     
     // Create Smoothers
-    // Window size 30 @ ~30fps = 1 second average. Adjust as needed.
-    Smoother pulse_smoother(30);
-    Smoother breathing_smoother(30);
+    // Window size 10 (approx 0.3-0.5s) for responsive yet stable readings
+    Smoother pulse_smoother(10);
+    Smoother breathing_smoother(10);
 
     std::cout << "Starting SmartSpectra Hello Vitals with Logging...\n";
     

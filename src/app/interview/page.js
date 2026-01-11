@@ -8,6 +8,7 @@ import GlassButton from '@/components/ui/GlassButton';
 import PNGTuberMascot from '@/components/PNGTuberMascot';
 import AudioVisualizer from '@/components/ui/AudioVisualizer';
 import CameraFeed from '@/components/CameraFeed';
+import FeedbackOverlay from '@/components/ui/FeedbackOverlay';
 
 // Import Data
 import questionsData from '@/data/questions.json';
@@ -27,6 +28,8 @@ export default function InterviewPage() {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [feedbackText, setFeedbackText] = useState(null);
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
 
   // --- Shared State ---
   const [interviewState, setInterviewState] = useState('INIT');
@@ -190,16 +193,17 @@ export default function InterviewPage() {
 
       recorder.onstop = async () => {
         setIsTranscribing(true);
+        let result = null;
         const type = recorder.mimeType || 'audio/webm';
         const audioBlob = new Blob(audioChunksRef.current, { type });
 
         try {
           const base64 = await blobToBase64(audioBlob);
-          await sendToGoogle(base64);
+          result = await sendToGoogle(base64);
         } catch (e) { console.error(e); }
         finally {
           setIsTranscribing(false);
-          resolve();
+          resolve(result);
         }
       };
       recorder.stop();
@@ -213,7 +217,7 @@ export default function InterviewPage() {
     if (stateRef.current === 'READY') qLogId = "Intro";
 
     try {
-      await fetch('/api/transcribe', {
+      const res = await fetch('/api/transcribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -224,7 +228,9 @@ export default function InterviewPage() {
           experienceLevel: setupData?.experienceLevel
         })
       });
-    } catch (e) { console.error(e); }
+      const data = await res.json();
+      return data.transcript;
+    } catch (e) { console.error(e); return null; }
   };
 
   // Refs for closure access
@@ -274,7 +280,26 @@ export default function InterviewPage() {
   };
 
   const handleNext = async () => {
-    await stopRecordingAndTranscribe();
+    const transcript = await stopRecordingAndTranscribe();
+
+    // Fire-and-forget Feedback Request
+    if (transcript) {
+      setFeedbackText(null);
+      setIsFeedbackLoading(true);
+      const currentQText = questionsData.questions[currentQuestionIndex].text;
+
+      fetch('/api/quick-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionText: currentQText, answerText: transcript })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.feedback) setFeedbackText(data.feedback);
+        })
+        .catch(err => console.error("Feedback fetch failed:", err))
+        .finally(() => setIsFeedbackLoading(false));
+    }
 
     const questions = questionsData.questions;
     const isLast = currentQuestionIndex === questions.length - 1;
@@ -358,6 +383,7 @@ export default function InterviewPage() {
                 {/* 1. The MJPEG Stream from C++ */}
                 <div className="absolute inset-0 w-full h-full">
                   <CameraFeed />
+                  <FeedbackOverlay feedback={feedbackText} isLoading={isFeedbackLoading} />
                 </div>
 
                 {!permissionGranted && (

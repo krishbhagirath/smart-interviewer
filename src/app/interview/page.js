@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import GradientBackground from '@/components/ui/GradientBackground';
-import GlassCard from '@/components/ui/GlassCard';
-import GlassButton from '@/components/ui/GlassButton';
+// import GradientBackground from '@/components/ui/GradientBackground'; // Removed
+// import GlassCard from '@/components/ui/GlassCard'; // Removed
+// import GlassButton from '@/components/ui/GlassButton'; // Removed
 import PNGTuberMascot from '@/components/PNGTuberMascot';
 import AudioVisualizer from '@/components/ui/AudioVisualizer';
 import CameraFeed from '@/components/CameraFeed';
@@ -39,6 +39,7 @@ export default function InterviewPage() {
 
   // --- Refs ---
   const audioQueueRef = useRef(Promise.resolve());
+  const audioInstanceRef = useRef(null); // Ref to hold current Audio object for cancellation
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const isAudioRecordingRef = useRef(false);
@@ -68,8 +69,79 @@ export default function InterviewPage() {
     return () => {
       clearInterval(interval);
       stopAudioRecording();
+      if (audioInstanceRef.current) {
+        audioInstanceRef.current.pause();
+        audioInstanceRef.current = null;
+      }
     };
   }, [router]);
+
+  // --- Logic Helper: Get Questions ---
+  const getQuestions = () => {
+    if (!setupData) return [];
+
+    let type = setupData.interviewType;
+
+    // Mapping unique UI IDs to shared Question Data keys
+    const MAPPING = {
+      'frontend-engineering': 'full-stack',
+      'backend-engineering': 'full-stack',
+      'fullstack-engineering': 'full-stack',
+      'behavioral-general': 'behavioral',
+      'behavioral-leadership': 'behavioral',
+      'behavioral-teamwork': 'behavioral',
+      'infrastructure': 'nokia-infra',
+      'ai-ml': 'shopify-ml-intern',
+      'cybersecurity': 'technical'
+    };
+
+    // If type is in mapping, use mapped key. Otherwise, check if it exists directly (e.g. ticker roles).
+    const questionKey = MAPPING[type] || type;
+
+    return questionsData[questionKey] || questionsData['general'];
+  };
+
+  // --- Audio Queue & TTS ---
+  const speak = (text) => {
+    stopAudioRecording();
+
+    // Stop any existing audio instantly
+    if (audioInstanceRef.current) {
+      audioInstanceRef.current.pause();
+      audioInstanceRef.current = null;
+    }
+
+    audioQueueRef.current = audioQueueRef.current.then(async () => {
+      try {
+        setIsSpeaking(true);
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audioInstanceRef.current = audio; // Save ref
+
+        return new Promise((resolve) => {
+          audio.onended = () => {
+            setIsSpeaking(false);
+            audioInstanceRef.current = null;
+            resolve();
+            URL.revokeObjectURL(url);
+          };
+          audio.onerror = () => { setIsSpeaking(false); resolve(); };
+          audio.play().catch(() => { setIsSpeaking(false); resolve(); });
+        });
+      } catch (err) {
+        console.error('TTS Error:', err);
+        setIsSpeaking(false);
+      }
+    });
+  };
 
   // --- Microphone Logic (Audio Only) ---
   const startMicrophone = async () => {
@@ -106,40 +178,6 @@ export default function InterviewPage() {
     } catch (error) {
       console.error('Error starting vitals session:', error);
     }
-  };
-
-  // --- Audio Queue & TTS ---
-  const speak = (text) => {
-    stopAudioRecording();
-
-    audioQueueRef.current = audioQueueRef.current.then(async () => {
-      try {
-        setIsSpeaking(true);
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
-        });
-
-        if (!res.ok) throw new Error(await res.text());
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-
-        return new Promise((resolve) => {
-          audio.onended = () => {
-            setIsSpeaking(false);
-            resolve();
-            URL.revokeObjectURL(url);
-          };
-          audio.onerror = () => { setIsSpeaking(false); resolve(); };
-          audio.play().catch(() => { setIsSpeaking(false); resolve(); });
-        });
-      } catch (err) {
-        console.error('TTS Error:', err);
-        setIsSpeaking(false);
-      }
-    });
   };
 
   // --- Recording Logic ---
@@ -259,6 +297,10 @@ export default function InterviewPage() {
     });
   };
 
+  const currentQuestions = getQuestions();
+  const totalQuestions = currentQuestions.length;
+
+
   const handleReady = () => {
     startVitalsSession('START'); // Trigger C++ Backend (Start Q1)
 
@@ -270,8 +312,10 @@ export default function InterviewPage() {
 
     setInterviewState('INTERVIEW');
     setCurrentQuestionIndex(0);
-    const firstQ = questionsData.questions[0];
-    setStatusText(`Question 1 of ${questionsData.total}: ${firstQ.text}`);
+
+    // Use dynamic Questions
+    const firstQ = currentQuestions[0];
+    setStatusText(`Question 1 of ${totalQuestions}: ${firstQ.text}`);
 
     speak(firstQ.text);
     audioQueueRef.current.then(() => {
@@ -286,7 +330,7 @@ export default function InterviewPage() {
     if (transcript) {
       setFeedbackText(null);
       setIsFeedbackLoading(true);
-      const currentQText = questionsData.questions[currentQuestionIndex].text;
+      const currentQText = currentQuestions[currentQuestionIndex].text;
 
       fetch('/api/quick-feedback', {
         method: 'POST',
@@ -301,8 +345,7 @@ export default function InterviewPage() {
         .finally(() => setIsFeedbackLoading(false));
     }
 
-    const questions = questionsData.questions;
-    const isLast = currentQuestionIndex === questions.length - 1;
+    const isLast = currentQuestionIndex === totalQuestions - 1;
 
     if (isLast) {
       setInterviewState('COMPLETE');
@@ -318,9 +361,9 @@ export default function InterviewPage() {
     } else {
       const nextIndex = currentQuestionIndex + 1;
       const transition = transitionsData[Math.floor(Math.random() * transitionsData.length)];
-      const nextQ = questions[nextIndex];
+      const nextQ = currentQuestions[nextIndex];
 
-      setStatusText(`Question ${nextIndex + 1} of ${questionsData.total}: ${nextQ.text}`);
+      setStatusText(`Question ${nextIndex + 1} of ${totalQuestions}: ${nextQ.text}`);
       setCurrentQuestionIndex(nextIndex);
 
       startVitalsSession('NEXT'); // Trigger C++ Backend (Next Question)
@@ -341,6 +384,11 @@ export default function InterviewPage() {
 
   const handleSkipToHome = () => {
     startVitalsSession('STOP');
+    // Stop Audio
+    if (audioInstanceRef.current) {
+      audioInstanceRef.current.pause();
+      audioInstanceRef.current = null;
+    }
     router.push('/');
   };
 
@@ -348,159 +396,177 @@ export default function InterviewPage() {
   if (!setupData) return null;
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <GradientBackground />
-
-      <div className="w-full max-w-screen-2xl">
-        <GlassCard className="p-8">
-
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">Interview Session</h1>
-            <div className="flex gap-4 text-sm text-white/70">
-              <span><strong>Type:</strong> {setupData.interviewType}</span>
-              <span><strong>Level:</strong> {setupData.experienceLevel}</span>
-            </div>
+    <main className="min-h-screen bg-slate-50 p-4 md:p-8">
+      {/* Navbar */}
+      <nav className="flex justify-between items-center mb-8 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/30">
+            <span className="text-2xl">🤖</span>
           </div>
+          <span className="text-2xl font-bold text-slate-900 tracking-tight">Hiready</span>
+        </div>
+        <button onClick={handleSkipToHome} className="text-slate-500 hover:text-red-600 font-medium text-sm transition-colors flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-500"></span>
+          Exit Session
+        </button>
+      </nav>
 
-          {/* Layout: Grid for Mascot & Video */}
-          <div className="mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-              {/* Mascot (Left) */}
-              <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <PNGTuberMascot isPlaying={isSpeaking} />
-                </div>
-                <div className="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded">
-                  <span className="text-white text-sm font-medium">Nemo the Interviewer</span>
+        {/* LEFT COLUMN: User Camera (MAIN STAGE - Span 8) */}
+        <div className="lg:col-span-8 space-y-6">
+
+          <div className="bg-white rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-200 overflow-hidden relative aspect-video group">
+            {/* Header Overlay */}
+            <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-6 z-10 flex justify-between items-start">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${isAudioRecordingRef.current ? 'bg-red-500 animate-pulse' : 'bg-slate-400'}`}></span>
+                  <span className="text-white font-bold text-lg tracking-wide shadow-black/50 drop-shadow-md">
+                    {setupData.customTitle || 'Your Camera Feed'}
+                  </span>
                 </div>
               </div>
-
-              {/* Video Preview (Right) - USES BACKEND CameraFeed */}
-              <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-
-                {/* 1. The MJPEG Stream from C++ */}
-                <div className="absolute inset-0 w-full h-full">
-                  <CameraFeed />
-                  <FeedbackOverlay feedback={feedbackText} isLoading={isFeedbackLoading} />
+              {!permissionGranted && (
+                <div className="px-4 py-1.5 rounded-full text-sm font-bold bg-red-500/80 text-white border border-white/20">
+                  Mic Off
                 </div>
+              )}
+            </div>
 
-                {!permissionGranted && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
-                    <div className="text-center">
-                      <div className="text-6xl mb-4">🎤</div>
-                      <p className="text-white/70 mb-4">Enable microphone to start</p>
-                      <GlassButton onClick={handleStart}>
-                        Enable Microphone
-                      </GlassButton>
-                    </div>
+            {/* Camera Feed Area */}
+            <div className="w-full h-full bg-black relative">
+              <div className="absolute inset-0 w-full h-full">
+                <CameraFeed />
+                <FeedbackOverlay feedback={feedbackText} isLoading={isFeedbackLoading} />
+              </div>
+
+              {!permissionGranted && (
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-20">
+                  <button onClick={handleStart} className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full hover:bg-blue-50 transition-all shadow-lg scale-110">
+                    Enable Microphone / Camera
+                  </button>
+                </div>
+              )}
+
+              {/* Audio Viz Overlay */}
+              {permissionGranted && (
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/80 to-transparent pointer-events-none z-10 flex items-end pb-4 px-8">
+                  <div className="w-full h-12 opacity-90">
+                    <AudioVisualizer stream={stream} isListening={!isSpeaking && !isTranscribing} />
                   </div>
-                )}
-
-                {permissionGranted && (
-                  <>
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-blue-600/90 px-3 py-1 rounded-full z-10 shadow-lg shadow-blue-500/50">
-                      <div className={`w-3 h-3 bg-white rounded-full ${isSpeaking ? '' : 'animate-pulse'}`}></div>
-                      <span className="text-white text-sm font-medium">
-                        {isSpeaking ? 'Agent Speaking' : isTranscribing ? 'Processing...' : 'Live'}
-                      </span>
-                    </div>
-
-                    {/* Audio Visualizer Overlay */}
-                    <div className="absolute bottom-4 left-4 right-4 h-16 bg-black/40 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 pointer-events-none z-10">
-                      <AudioVisualizer stream={stream} isListening={!isSpeaking && !isTranscribing} />
-                    </div>
-                  </>
-                )}
-
-                {isTranscribing && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none z-20">
-                    <div className="text-white font-medium animate-pulse">Transcribing...</div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Vitals Data (Below Grid) */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-blue-950/50 rounded-lg p-3 flex flex-col items-center justify-center backdrop-blur-sm border border-blue-500/40 shadow-lg shadow-blue-500/20">
-              <span className="text-blue-200 text-xs mb-1 uppercase tracking-wider">Heart Rate</span>
-              <div className="flex items-baseline gap-1">
-                <span className={`text-3xl font-bold ${vitals.pulse > 100 ? 'text-red-400' : vitals.pulse >= 60 ? 'text-blue-400' : 'text-cyan-400'}`}>
-                  {vitals.pulse > 0 ? vitals.pulse : '--'}
-                </span>
-                <span className="text-blue-300 text-xs">BPM</span>
-              </div>
-              <span className="text-xs text-blue-300 mt-0.5">
-                {vitals.pulse > 100 ? 'Stress' : vitals.pulse >= 60 ? 'Normal' : 'Relaxed'}
-              </span>
-            </div>
-            <div className="bg-blue-950/50 rounded-lg p-3 flex flex-col items-center justify-center backdrop-blur-sm border border-blue-500/40 shadow-lg shadow-blue-500/20">
-              <span className="text-blue-200 text-xs mb-1 uppercase tracking-wider">Breathing Rate</span>
-              <div className="flex items-baseline gap-1">
-                <span className={`text-3xl font-bold ${vitals.breathing > 20 ? 'text-red-400' : vitals.breathing >= 12 ? 'text-blue-400' : 'text-cyan-400'}`}>
-                  {vitals.breathing > 0 ? vitals.breathing : '--'}
-                </span>
-                <span className="text-blue-300 text-xs">BPM</span>
-              </div>
-              <span className="text-xs text-blue-300 mt-0.5">
-                {vitals.breathing > 20 ? 'Stress' : vitals.breathing >= 12 ? 'Normal' : 'Deep Relaxation'}
-              </span>
-            </div>
-          </div>
-
-          {/* Status Text Area */}
-          <div className="mb-6 p-6 bg-blue-950/40 rounded-xl border border-blue-500/30 min-h-[100px] flex items-center justify-center text-center shadow-lg shadow-blue-500/10">
-            <h2 className="text-xl md:text-2xl text-blue-50 font-medium">
-              {statusText}
-            </h2>
-          </div>
-
-          {/* Controls */}
+          {/* Action Buttons (Under Main Video) */}
           {permissionGranted && (
-            <div className="flex gap-4 justify-center">
+            <div className="grid grid-cols-1 gap-4">
               {interviewState === 'INIT' && (
-                <GlassButton onClick={handleInterviewStart} size="large" variant="primary" disabled={isSpeaking}>
-                  Start Interview
-                </GlassButton>
+                <button onClick={handleInterviewStart} disabled={isSpeaking}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold py-6 rounded-2xl shadow-xl shadow-blue-600/20 transition-all hover:scale-[1.01] flex items-center justify-center gap-3">
+                  <span>▶</span> Start Session
+                </button>
               )}
               {interviewState === 'READY' && (
-                <GlassButton onClick={handleReady} size="large" variant="primary" disabled={isSpeaking}>
-                  Yes! Let's Begin
-                </GlassButton>
+                <button onClick={handleReady} disabled={isSpeaking}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white text-xl font-bold py-6 rounded-2xl shadow-xl shadow-green-600/20 transition-all hover:scale-[1.01] flex items-center justify-center gap-3">
+                  <span>✓</span> I'm Ready, Let's Begin
+                </button>
               )}
               {interviewState === 'INTERVIEW' && (
-                <GlassButton onClick={handleNext} size="large" variant="primary" disabled={isSpeaking || isTranscribing}>
-                  {isTranscribing ? 'Saving...' : 'Done → Next Question'}
-                </GlassButton>
+                <button onClick={handleNext} disabled={isSpeaking || isTranscribing}
+                  className={`w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold py-6 rounded-2xl shadow-xl shadow-blue-600/20 transition-all hover:scale-[1.01] flex items-center justify-center gap-3 ${isTranscribing ? 'opacity-70 cursor-wait' : ''}`}>
+                  {isTranscribing ? (
+                    <><span>⟳</span> Processing Answer...</>
+                  ) : (
+                    <><span>➤</span> Submit Answer & Next</>
+                  )}
+                </button>
               )}
               {interviewState === 'COMPLETE' && (
                 <div className="flex gap-4">
-                  <GlassButton onClick={handleViewResults} size="large" variant="primary">
-                    View Feedback Report
-                  </GlassButton>
-                  <GlassButton onClick={handleSkipToHome} size="large" variant="secondary">
-                    Skip to Home
-                  </GlassButton>
+                  <button onClick={handleViewResults} className="flex-1 bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-4 rounded-xl shadow-lg transition-all">
+                    View Detailed Report
+                  </button>
+                  <button onClick={handleSkipToHome} className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-bold py-4 rounded-xl transition-all">
+                    Return Home
+                  </button>
                 </div>
               )}
             </div>
           )}
+        </div>
 
-          {!permissionGranted && (
-            <div className="mt-8 p-4 bg-white/5 rounded-lg text-center">
-              <p className="text-white/70 text-sm">
-                Enable your microphone to begin.
+        {/* RIGHT COLUMN: Bot + Vitals (Sidebar - Span 4) */}
+        <div className="lg:col-span-4 space-y-6 flex flex-col">
+
+          {/* AI Interviewer (Smaller View) */}
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden relative aspect-video">
+            <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">AI Interviewer</h3>
+              <span className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></span>
+            </div>
+
+            <div className="w-full h-full bg-slate-900 flex items-center justify-center relative p-4">
+              <div className="relative w-40 h-40">
+                <PNGTuberMascot isPlaying={isSpeaking} />
+              </div>
+            </div>
+
+            {/* Questions Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-md p-4 max-h-[40%] overflow-y-auto">
+              <p className="text-white text-sm font-medium leading-relaxed text-center">
+                {statusText}
               </p>
             </div>
-          )}
+          </div>
 
-        </GlassCard>
+          {/* Vitals */}
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 flex-1">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-xl">❤️</span>
+              <h3 className="text-lg font-bold text-slate-800">Live Biometrics</h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-red-50/50 border border-red-100 transition-all hover:bg-red-50">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-red-500 font-bold text-sm uppercase">Heart Rate</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${vitals.pulse > 100 ? 'bg-red-200 text-red-700' : 'bg-green-200 text-green-700'}`}>
+                    {vitals.pulse > 100 ? 'High' : 'Normal'}
+                  </span>
+                </div>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-black text-slate-800 tracking-tight">{vitals.pulse > 0 ? vitals.pulse : '--'}</span>
+                  <span className="text-slate-400 font-medium mb-1">BPM</span>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 transition-all hover:bg-blue-50">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-blue-500 font-bold text-sm uppercase">Breathing</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${vitals.breathing > 20 ? 'bg-yellow-200 text-yellow-700' : 'bg-green-200 text-green-700'}`}>
+                    {vitals.breathing > 20 ? 'Rapid' : 'Calm'}
+                  </span>
+                </div>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-black text-slate-800 tracking-tight">{vitals.breathing > 0 ? vitals.breathing : '--'}</span>
+                  <span className="text-slate-400 font-medium mb-1">RPM</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
+              <p className="text-xs text-slate-400">
+                Real-time stress analysis provided by <span className="font-bold text-slate-600">Presage™</span> technology.
+              </p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </main>
   );
 }
-

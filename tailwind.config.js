@@ -68,7 +68,7 @@ module.exports = {
     },
   },
   plugins: [
-    function({ addUtilities }) {
+    function ({ addUtilities }) {
       addUtilities({
         '.animation-delay-2000': {
           'animation-delay': '2s',

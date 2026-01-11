@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Intervyou - AI-Powered Interview Practice',
+  title: 'Hiready - AI-Powered Interview Practice',
   description: 'Prepare for your next interview with AI-powered practice sessions',
 };
 

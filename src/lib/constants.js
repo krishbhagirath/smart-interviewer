@@ -44,6 +44,11 @@ export const INTERVIEW_TYPES = [
     label: 'Cybersecurity',
     description: 'Security engineering, threat analysis, penetration testing',
   },
+  {
+    id: 'test-software-engineer',
+    label: 'Test - Software Engineer',
+    description: 'Testing purposes (OOP questions)',
+  },
 ];
 
 export const EXPERIENCE_LEVELS = [

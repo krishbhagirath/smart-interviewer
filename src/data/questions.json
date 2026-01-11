@@ -1,6 +1,5 @@
 {
-  "total": 5,
-  "questions": [
+  "general": [
     {
       "id": 1,
       "text": "To start, can you tell me a little about yourself?"
@@ -20,6 +19,118 @@
     {
       "id": 5,
       "text": "Is there anything else you would like us to know about you?"
+    }
+  ],
+  "behavioral": [
+    {
+      "id": 1,
+      "text": "Tell me about a time you had a conflict with a coworker."
+    },
+    {
+      "id": 2,
+      "text": "What is your greatest strength and your greatest weakness?"
+    },
+    {
+      "id": 3,
+      "text": "Describe a situation where you had to meet a tight deadline."
+    },
+    {
+      "id": 4,
+      "text": "How do you handle constructive criticism?"
+    },
+    {
+      "id": 5,
+      "text": "Where do you see yourself in five years?"
+    }
+  ],
+  "technical": [
+    {
+      "id": 1,
+      "text": "Explain the concept of Big O notation to a beginner."
+    },
+    {
+      "id": 2,
+      "text": "What is the difference between a process and a thread?"
+    },
+    {
+      "id": 3,
+      "text": "How does DNS resolution work when you type a URL?"
+    },
+    {
+      "id": 4,
+      "text": "Describe the difference between TCP and UDP."
+    }
+  ],
+  "shopify-ml-intern": [
+    {
+      "id": 1,
+      "text": "Tell me about your experience with machine learning frameworks like PyTorch or TensorFlow."
+    },
+    {
+      "id": 2,
+      "text": "Shopify deals with massive scale. How would you design a recommendation system for millions of products?"
+    },
+    {
+      "id": 3,
+      "text": "Explain the difference between supervised and unsupervised learning."
+    },
+    {
+      "id": 4,
+      "text": "Describe a time you cleaned a messy dataset. What was the outcome?"
+    },
+    {
+      "id": 5,
+      "text": "Why do you want to work specifically on ML infrastructure at Shopify?"
+    }
+  ],
+  "nokia-infra": [
+    {
+      "id": 1,
+      "text": "What does 'Infrastructure as Code' mean to you?"
+    },
+    {
+      "id": 2,
+      "text": "Explain the role of Docker and Kubernetes in modern deployments."
+    },
+    {
+      "id": 3,
+      "text": "How would you troubleshoot a server that is becoming unresponsive?"
+    },
+    {
+      "id": 4,
+      "text": "Tell me about a time you automated a manual process to save time."
+    },
+    {
+      "id": 5,
+      "text": "Why is Nokia's network infrastructure appealing to you?"
+    }
+  ],
+  "full-stack": [
+    {
+      "id": 1,
+      "text": "What is the Virtual DOM in React and why is it faster?"
+    },
+    {
+      "id": 2,
+      "text": "Explain the difference between SQL and NoSQL databases."
+    },
+    {
+      "id": 3,
+      "text": "How do you handle state management in large complete applications?"
+    },
+    {
+      "id": 4,
+      "text": "Design a simple API for a To-Do list application."
+    }
+  ],
+  "test-software-engineer": [
+    {
+      "id": 1,
+      "text": "Explain the CAP theorem and what it means for a distributed system."
+    },
+    {
+      "id": 2,
+      "text": "In your own words, can you explain the core concept of Object-Oriented Programming?"
     }
   ]
 }

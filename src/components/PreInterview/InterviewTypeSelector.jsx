@@ -17,7 +17,7 @@ export default function InterviewTypeSelector({ value, onChange, error }) {
       />
 
       {selectedType && (
-        <p className="text-white/70 text-sm ml-1">
+        <p className="text-slate-500 text-sm ml-1">
           {selectedType.description}
         </p>
       )}

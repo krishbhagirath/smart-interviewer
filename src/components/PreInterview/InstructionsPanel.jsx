@@ -5,7 +5,7 @@ export default function InstructionsPanel() {
   return (
     <GlassCard className="p-6 mb-6">
       <h2 className="text-2xl font-bold text-white mb-4">
-        Welcome to Intervyou
+        Welcome to Hiready
       </h2>
 
       <p className="text-white/80 mb-4">

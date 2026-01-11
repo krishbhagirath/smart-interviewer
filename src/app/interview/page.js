@@ -91,11 +91,15 @@ export default function InterviewPage() {
   };
 
   // --- Vitals Start (HEAD) ---
-  const startVitalsSession = async () => {
+  const startVitalsSession = async (action = 'START') => {
     try {
-      await fetch('/api/start-vitals', { method: 'POST' });
+      await fetch('/api/start-vitals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
       setIsSessionActive(true);
-      console.log('Vitals Session started');
+      console.log(`Vitals Session Triggered: ${action}`);
     } catch (error) {
       console.error('Error starting vitals session:', error);
     }
@@ -238,7 +242,7 @@ export default function InterviewPage() {
   };
 
   const handleInterviewStart = () => {
-    startVitalsSession(); // Trigger C++ Backend
+    // DO NOT start vitals here (User Step 1: Confirm)
 
     setInterviewState('READY');
     setStatusText("Are you ready to start?");
@@ -250,6 +254,8 @@ export default function InterviewPage() {
   };
 
   const handleReady = () => {
+    startVitalsSession('START'); // Trigger C++ Backend (Start Q1)
+
     if (isAudioRecordingRef.current && mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       isAudioRecordingRef.current = false;
@@ -276,6 +282,7 @@ export default function InterviewPage() {
     if (isLast) {
       setInterviewState('COMPLETE');
       setStatusText("Interview Complete.");
+      startVitalsSession('STOP'); // Trigger C++: STOP Recording for Q5/Last Q
       speak("Thank you for completing your practice interview. Your analysis will be generated shortly.");
     } else {
       const nextIndex = currentQuestionIndex + 1;
@@ -284,6 +291,8 @@ export default function InterviewPage() {
 
       setStatusText(`Question ${nextIndex + 1} of ${questionsData.total}: ${nextQ.text}`);
       setCurrentQuestionIndex(nextIndex);
+
+      startVitalsSession('NEXT'); // Trigger C++ Backend (Next Question)
 
       speak(transition);
       speak(nextQ.text);
@@ -294,7 +303,10 @@ export default function InterviewPage() {
     }
   };
 
-  const handleExit = () => { router.push('/'); };
+  const handleExit = () => {
+    startVitalsSession('STOP'); // Ensure C++ stops if user exits early
+    router.push('/');
+  };
 
 
   if (!setupData) return null;

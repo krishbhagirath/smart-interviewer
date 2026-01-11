@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import GradientBackground from '@/components/ui/GradientBackground';
 import GlassCard from '@/components/ui/GlassCard';
 import GlassButton from '@/components/ui/GlassButton';
+import PNGTuberMascot from '@/components/PNGTuberMascot';
 
 // Import Data
 import questionsData from '@/data/questions.json';
@@ -182,7 +183,7 @@ export default function InterviewPage() {
     <main className="min-h-screen flex items-center justify-center p-4">
       <GradientBackground />
 
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-screen-2xl">
         <GlassCard className="p-8">
           {/* Header */}
           <div className="mb-6 flex justify-between items-end">
@@ -200,35 +201,55 @@ export default function InterviewPage() {
             </div>
           </div>
 
-          {/* Video Preview */}
+          {/* Zoom-style Meeting Layout */}
           <div className="mb-6">
-            <div className="relative bg-black rounded-lg overflow-hidden w-full" style={{ paddingTop: '56.25%' }}>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className={`absolute top-0 left-0 w-full h-full object-cover ${permissionGranted ? 'block' : 'hidden'}`}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Mascot (Left) - Rectangular */}
+              <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <PNGTuberMascot isPlaying={isSpeaking} />
+                </div>
+                {/* Name label like Zoom */}
+                <div className="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded">
+                  <span className="text-white text-sm font-medium">AI Interviewer</span>
+                </div>
+              </div>
 
-              {!permissionGranted && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">📹</div>
-                    <p className="text-white/70 mb-4">Camera preview will appear here</p>
-                    <GlassButton onClick={startCamera}>
-                      Enable Camera & Microphone
-                    </GlassButton>
+              {/* Video Preview (Right) - Rectangular */}
+              <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`absolute top-0 left-0 w-full h-full object-cover ${permissionGranted ? 'block' : 'hidden'}`}
+                />
+
+                {!permissionGranted && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">📹</div>
+                      <p className="text-white/70 mb-4">Camera preview will appear here</p>
+                      <GlassButton onClick={startCamera}>
+                        Enable Camera & Microphone
+                      </GlassButton>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {permissionGranted && (
-                <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/80 px-3 py-1 rounded-full z-10">
-                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                  <span className="text-white text-sm font-medium">Rec</span>
-                </div>
-              )}
+                {permissionGranted && (
+                  <>
+                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/80 px-3 py-1 rounded-full z-10">
+                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                      <span className="text-white text-sm font-medium">Rec</span>
+                    </div>
+                    {/* Name label like Zoom */}
+                    <div className="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded">
+                      <span className="text-white text-sm font-medium">You</span>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {error && (

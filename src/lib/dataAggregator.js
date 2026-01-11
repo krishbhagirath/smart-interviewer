@@ -12,16 +12,33 @@ export async function safeReadJSON(filePath, defaultValue = null) {
   }
 }
 
+// Helper to check multiple paths
+async function readFirstExistingJSON(paths, defaultValue) {
+  for (const p of paths) {
+    const data = await safeReadJSON(p, null);
+    if (data !== null) return data;
+  }
+  return defaultValue;
+}
+
 // Aggregate all interview data sources
 export async function aggregateInterviewData(sessionId) {
   const answersPath = path.join(process.cwd(), 'interview_answers.json');
-  const eventsPath = path.join(process.cwd(), 'presage_quickstart', 'interview_events.json');
-  const stressPath = path.join(process.cwd(), 'presage_quickstart', 'stress_events.json');
+
+  // Check both source and build directories for C++ output
+  const eventsPaths = [
+    path.join(process.cwd(), 'presage_quickstart', 'interview_events.json'),
+    path.join(process.cwd(), 'presage_quickstart', 'build', 'interview_events.json')
+  ];
+  const stressPaths = [
+    path.join(process.cwd(), 'presage_quickstart', 'stress_events.json'),
+    path.join(process.cwd(), 'presage_quickstart', 'build', 'stress_events.json')
+  ];
 
   const [answersData, vitalsData, stressData] = await Promise.all([
     safeReadJSON(answersPath),
-    safeReadJSON(eventsPath, []),
-    safeReadJSON(stressPath, [])
+    readFirstExistingJSON(eventsPaths, []),
+    readFirstExistingJSON(stressPaths, [])
   ]);
 
   if (!answersData || answersData.sessionId !== sessionId) {

@@ -10,8 +10,8 @@ export async function GET() {
             const vitals = JSON.parse(fileContent);
             return Response.json(vitals, { status: 200 });
         } catch (err) {
-            if (err.code === 'ENOENT') {
-                // File doesn't exist yet (C++ app not started or hasn't written a frame yet)
+            if (err.code === 'ENOENT' || err instanceof SyntaxError) {
+                // File doesn't exist yet OR is currently being written to (empty/partial)
                 return Response.json({ pulse: 0, breathing: 0 }, { status: 200 });
             }
             throw err;

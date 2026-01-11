@@ -51,3 +51,5 @@ question_*_summary.json
 .vscode/
 .idea/
 
+# local data
+interview_answers.json

@@ -24,7 +24,22 @@
 
 using namespace presage::smartspectra;
 
-// Helper to get formatted timestamp removed
+// Helper struct for Pulse/Breathing Summary
+struct QuestionSummary {
+    int question_number;
+    double avg_pulse;
+    double avg_breathing;
+    double duration;
+    size_t sample_count;
+};
+
+// Helper struct for Stress Events
+struct StressEvent {
+    int question_number;
+    double time_offset_sec; // Seconds from start of question
+    std::string type;       // "Pulse" or "Breathing"
+    float value;
+};
 
 // State management for logging
 struct SessionManager {
@@ -37,7 +52,12 @@ struct SessionManager {
     std::vector<float> session_breathings;
     std::chrono::steady_clock::time_point start_time;
     std::ofstream raw_log;
-    std::ofstream events_log;
+    
+    // Aggregated Summaries
+    std::vector<QuestionSummary> all_summaries;
+    
+    // Stress Events
+    std::vector<StressEvent> stress_events;
 
     SessionManager() {
         // Initialize Raw Log
@@ -48,62 +68,101 @@ struct SessionManager {
             std::cout << "[INFO] Fresh raw_vitals_log.csv initialized.\n";
         }
         
-        // Initialize Events Log
-        events_log.open("interview_events.json", std::ios::out);
-        if (events_log.is_open()) {
-            std::cout << "[INFO] Fresh interview_events.json initialized.\n";
-        }
+        // Clear previous analysis
+        std::ofstream json_clear("interview_events.json", std::ios::out | std::ios::trunc);
+        json_clear << "[]";
+        json_clear.close();
+        
+        // Clear previous stress events
+        std::ofstream stress_clear("stress_events.json", std::ios::out | std::ios::trunc);
+        stress_clear << "[]";
+        stress_clear.close();
     }
 
     void StartSession() {
+        if (is_recording) return; // Prevent double start
         is_recording = true;
         session_sample_counter = 0; // Reset for new question
         session_pulses.clear();
         session_breathings.clear();
         
         start_time = std::chrono::steady_clock::now();
-        std::cout << "\n[MANUAL-SESSION START] Recording Question " << question_counter << "...\n";
+        std::cout << "\n[SESSION START] Recording Question " << question_counter << "...\n";
     }
 
     void EndSession() {
+        if (!is_recording) return;
+
         is_recording = false;
         auto end_time = std::chrono::steady_clock::now();
         double duration = std::chrono::duration<double>(end_time - start_time).count();
 
         if (session_pulses.empty()) {
-            std::cout << "[MANUAL-SESSION END] No data was collected. Skipping summary.\n";
-            return;
-        }
+            std::cout << "[SESSION END] No data was collected for Q" << question_counter << ".\n";
+        } else {
+            // Calculate Session Averages
+            float avg_pulse = 0;
+            for (float f : session_pulses) avg_pulse += f;
+            avg_pulse /= session_pulses.size();
 
-        // Calculate Session Averages
-        float avg_pulse = 0;
-        for (float f : session_pulses) avg_pulse += f;
-        avg_pulse /= session_pulses.size();
+            float avg_breathing = 0;
+            for (float f : session_breathings) avg_breathing += f;
+            avg_breathing /= session_breathings.size();
 
-        float avg_breathing = 0;
-        for (float f : session_breathings) avg_breathing += f;
-        avg_breathing /= session_breathings.size();
+            std::cout << "\n[SESSION END] Summary for Question " << question_counter << ":\n";
+            std::cout << "  - Avg Pulse: " << std::fixed << std::setprecision(2) << avg_pulse << " BPM\n";
+            std::cout << "  - Avg Breathing: " << avg_breathing << " BPM\n";
+            std::cout << "  - Duration: " << std::setprecision(2) << duration << "s\n";
 
-        std::cout << "\n[MANUAL-SESSION END] Summary for Question " << question_counter << ":\n";
-        std::cout << "  - Avg Pulse: " << std::fixed << std::setprecision(2) << avg_pulse << " BPM\n";
-        std::cout << "  - Avg Breathing: " << avg_breathing << " BPM\n";
-        std::cout << "  - Duration: " << std::setprecision(2) << duration << "s\n";
+            // Store Summary
+            all_summaries.push_back({question_counter, avg_pulse, avg_breathing, duration, session_pulses.size()});
 
-        // Write JSON Summary
-        std::string filename = "question_" + std::to_string(question_counter) + "_summary.json";
-        std::ofstream json_out(filename);
-        if (json_out.is_open()) {
-            json_out << "{\n"
-                     << "  \"question_number\": " << question_counter << ",\n"
-                     << "  \"avg_pulse\": " << avg_pulse << ",\n"
-                     << "  \"avg_breathing\": " << avg_breathing << ",\n"
-                     << "  \"session_duration_sec\": " << duration << ",\n"
-                     << "  \"sample_count\": " << session_pulses.size() << "\n"
-                     << "}\n";
-            json_out.close();
+            // Write Aggregated JSON
+            WriteAggregatedJSON();
         }
 
         question_counter++;
+    }
+
+    void WriteAggregatedJSON() {
+        std::ofstream json_out("interview_events.json"); // Overwrite with full array
+        if (json_out.is_open()) {
+            json_out << "[\n";
+            for (size_t i = 0; i < all_summaries.size(); ++i) {
+                const auto& s = all_summaries[i];
+                json_out << "  {\n"
+                         << "    \"question_number\": " << s.question_number << ",\n"
+                         << "    \"avg_pulse\": " << s.avg_pulse << ",\n"
+                         << "    \"avg_breathing\": " << s.avg_breathing << ",\n"
+                         << "    \"session_duration_sec\": " << s.duration << ",\n"
+                         << "    \"sample_count\": " << s.sample_count << "\n"
+                         << "  }" << (i < all_summaries.size() - 1 ? "," : "") << "\n";
+            }
+            json_out << "]\n";
+            json_out.close();
+            std::cout << "[INFO] Updated interview_events.json with Q" << (question_counter) << " data.\n";
+        }
+    }
+    
+    void RecordStressEvent(const StressEvent& event) {
+        stress_events.push_back(event);
+        
+        // Write/Update Stress JSON immediately
+        std::ofstream json_out("stress_events.json");
+        if (json_out.is_open()) {
+            json_out << "[\n";
+            for (size_t i = 0; i < stress_events.size(); ++i) {
+                const auto& s = stress_events[i];
+                json_out << "  {\n"
+                         << "    \"question_number\": " << s.question_number << ",\n"
+                         << "    \"time_offset_sec\": " << std::fixed << std::setprecision(2) << s.time_offset_sec << ",\n"
+                         << "    \"type\": \"" << s.type << "\",\n"
+                         << "    \"value\": " << s.value << "\n"
+                         << "  }" << (i < stress_events.size() - 1 ? "," : "") << "\n";
+            }
+            json_out << "]\n";
+            json_out.close();
+        }
     }
     
     void ProcessMetrics(const presage::physiology::MetricsBuffer& metrics) {
@@ -114,23 +173,34 @@ struct SessionManager {
         bool has_pulse = !metrics.pulse().rate().empty();
         bool has_breathing = !metrics.breathing().rate().empty();
 
+        double offset_sec = std::chrono::duration<double>(std::chrono::steady_clock::now() - start_time).count();
+
         if (has_pulse) {
             auto it = metrics.pulse().rate().rbegin();
             pulse = it->value();
             confidence = it->confidence();
             timestamp = it->timestamp();
             session_pulses.push_back(pulse);
+            
+            // Stress Check Pulse > 100
+            if (pulse > 100.0f) {
+                RecordStressEvent({question_counter, offset_sec, "Pulse", pulse});
+            }
         }
         if (has_breathing) {
             breathing = metrics.breathing().rate().rbegin()->value();
             session_breathings.push_back(breathing);
+            
+            // Stress Check Breathing > 20
+            if (breathing > 20.0f) {
+                RecordStressEvent({question_counter, offset_sec, "Breathing", breathing});
+            }
         }
         
         session_sample_counter++;
 
         // --- Raw Log ---
         if (raw_log.is_open()) {
-            // Use session_sample_counter in the CSV to match the JSON event logic
             raw_log << session_sample_counter << "," << question_counter << "," << timestamp << "," 
                     << pulse << "," << breathing << "," << confidence << "\n";
             raw_log.flush();
@@ -230,7 +300,8 @@ int main(int argc, char** argv) {
                 if (vitals_file.is_open()) {
                     vitals_file << "{\n"
                                 << "  \"pulse\": " << std::fixed << std::setprecision(1) << current_pulse << ",\n"
-                                << "  \"breathing\": " << current_breathing << "\n"
+                                << "  \"breathing\": " << current_breathing << ",\n"
+                                << "  \"recording\": " << (session_manager.is_recording ? "true" : "false") << "\n"
                                 << "}\n";
                     vitals_file.close();
                     std::filesystem::rename("../vitals.tmp", "../latest_vitals.json");
@@ -251,7 +322,7 @@ int main(int argc, char** argv) {
                 // Overlay recording status
                 if (session_manager.is_recording) {
                     cv::circle(frame, cv::Point(50, 50), 10, cv::Scalar(0, 0, 255), -1);
-                    cv::putText(frame, "MANUAL-REC Q" + std::to_string(session_manager.question_counter), 
+                    cv::putText(frame, "REC Q" + std::to_string(session_manager.question_counter), 
                                 cv::Point(70, 60), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
                 }
 
@@ -261,12 +332,46 @@ int main(int argc, char** argv) {
                 std::string content(buff_bgr.begin(), buff_bgr.end());
                 streamer.publish("/video_feed", content);
 
-                // Remote Trigger Check
+                // Remote Trigger Check (Enhanced with Commands)
                 if (std::filesystem::exists("../vitals_trigger.tmp")) {
-                    std::cout << "Frontend Trigger Received: Starting Tracking\n";
-                    session_manager.StartSession();
-                    // Also enable internal SDK recording via exposed method
-                    raw_container->SetRecordingPublic(true);
+                    std::ifstream trigger_in("../vitals_trigger.tmp");
+                    std::string command;
+                    if (trigger_in.is_open()) {
+                        std::getline(trigger_in, command);
+                        trigger_in.close();
+                    }
+                    
+                    std::cout << "Trigger Recvd: [" << command << "] "; // Debug
+
+                    if (command == "STOP") {
+                        if (session_manager.is_recording) {
+                            std::cout << "Stopping Session for Q" << session_manager.question_counter << "\n";
+                            session_manager.EndSession(); 
+                        } else {
+                            std::cout << "Ignored STOP (Not recording)\n";
+                        }
+                    } 
+                    else if (command == "NEXT") {
+                        if (session_manager.is_recording) {
+                            std::cout << "Ending Q" << session_manager.question_counter << " -> Starting Q" << (session_manager.question_counter + 1) << "\n";
+                            session_manager.EndSession(); 
+                            session_manager.StartSession();
+                        } else {
+                            std::cout << "Ignored NEXT (Not recording, treating as START)\n";
+                            session_manager.StartSession();
+                            raw_container->SetRecordingPublic(true);
+                        }
+                    }
+                    else { // Default "START" or empty
+                        if (!session_manager.is_recording) {
+                            std::cout << "Starting new session Q" << session_manager.question_counter << "\n";
+                            session_manager.StartSession();
+                            raw_container->SetRecordingPublic(true);
+                        } else {
+                            std::cout << "Ignored START (Already recording)\n";
+                        }
+                    }
+                    
                     std::filesystem::remove("../vitals_trigger.tmp");
                 }
 
@@ -279,7 +384,7 @@ int main(int argc, char** argv) {
             return 1;
         }
         
-        std::cout << "Ready! Press 'a' to start/stop recording data for each question.\nPress 'q' to quit.\n";
+        std::cout << "Ready! Waiting for Frontend Triggers (START, NEXT, STOP) or press 'q' to quit.\n";
         container->Run().IgnoreError();
         
         cv::destroyAllWindows();
